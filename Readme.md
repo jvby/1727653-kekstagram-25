@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм»
 
 * Студент: [Василий](https://up.htmlacademy.ru/javascript/25/user/1727653).
-* Наставник: `Неизвестно`.
+* Наставник: [Артем Макаров](https://htmlacademy.ru/profile/deepsick).
 
 ---
 
