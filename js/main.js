@@ -1,5 +1,5 @@
 function getRandomIntInclusive(min, max) {
-  if (min >= max) {
+  if (min >= max || min < 0) {
     console.log("Неверные значения!");
   } else {
   min = Math.ceil(min);
