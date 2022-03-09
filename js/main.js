@@ -1,15 +1,15 @@
 function getRandomIntInclusive(min, max) {
   if (min >= max || min < 0) {
-    console.log("Неверные значения!");
+    return 'Unexpected data!';
   } else {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }
 
 function stringLength(stringCheck, maxLength) {
   return  stringCheck.length <= maxLength;
 }
-console.log(stringLength("Привет",5));
-console.log(getRandomIntInclusive(40,90));
+stringLength('Привет',5);
+getRandomIntInclusive(40,90);
