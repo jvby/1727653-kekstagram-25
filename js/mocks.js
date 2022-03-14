@@ -1,5 +1,3 @@
-import {getRandomPositiveInteger} from './util.js';
-
 const NAMES = [
   'Иван',
   'Хуан Себастьян',
@@ -29,45 +27,4 @@ const DESCRIPTIONS = [
   'С новой прической',
 ];
 
-const START_ID = 0;
-
-const getRandomArrayElement = (elements) => {
-  const element = elements[getRandomPositiveInteger(0, elements.length - 1)];
-  return element;
-};
-
-const createComment = (id) => {
-  const comment = {
-    id: id,
-    avatar: `img/avatar-${getRandomPositiveInteger(1, 6)}.svg`,
-    message: getRandomArrayElement(COMMENTS),
-    name: getRandomArrayElement(NAMES),
-  };
-  return comment;
-};
-
-function createCommentsArray(count, id) {
-  const comments = Array.from({length: count}, () => {
-    id++;
-    return createComment(id);
-  });
-  return comments;
-}
-
-const createPhoto = (id) => {
-  const photo = {
-    id: id,
-    url: `photos/${id}.jpg`,
-    description: getRandomArrayElement(DESCRIPTIONS),
-    likes: getRandomPositiveInteger(15, 200),
-    comments: createCommentsArray(getRandomPositiveInteger(1, 10), START_ID),
-  };
-  return photo;
-};
-
-const createPhotoArray = (count, id) => Array.from({length: count}, () => {
-  id++;
-  return createPhoto(id);
-});
-
-export {createPhotoArray};
+export {NAMES, COMMENTS, DESCRIPTIONS};

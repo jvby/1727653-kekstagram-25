@@ -1,7 +1,4 @@
-import {createPhotoArray} from './data.js';
+import {createPhotos} from './offer.js';
+import {PHOTO_ARRAY_COUNT, START_ID} from './constant.js';
 
-const PHOTO_ARRAY_COUNT = 25;
-
-const START_ID = 0;
-
-createPhotoArray(PHOTO_ARRAY_COUNT, START_ID);
+createPhotos(PHOTO_ARRAY_COUNT, START_ID);
