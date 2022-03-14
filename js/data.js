@@ -1,4 +1,4 @@
-import {getRandomPositiveInteger} from './util.js'
+import {getRandomPositiveInteger} from './util.js';
 
 const NAMES = [
   'Иван',
@@ -28,8 +28,6 @@ const DESCRIPTIONS = [
   'С друзьями',
   'С новой прической',
 ];
-
-const PHOTO_ARRAY_COUNT = 25;
 
 const START_ID = 0;
 
@@ -72,6 +70,4 @@ const createPhotoArray = (count, id) => Array.from({length: count}, () => {
   return createPhoto(id);
 });
 
-const getPhotoArray = createPhotoArray(PHOTO_ARRAY_COUNT, START_ID);
-
-export {getPhotoArray};
+export {createPhotoArray};
