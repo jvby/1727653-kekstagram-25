@@ -36,7 +36,4 @@ const createPhotos = (count, id) => Array.from({length: count}, () => {
   return getPhoto(id);
 });
 
-
-
-
 export {createPhotos};

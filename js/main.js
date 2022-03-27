@@ -1,2 +1,2 @@
-import {createPictures} from './pictures.js';
-createPictures();
+import {createGallery} from './gallery.js';
+createGallery();

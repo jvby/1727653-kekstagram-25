@@ -1,15 +1,13 @@
 import {createPhotos} from './offer.js';
 import {PHOTO_ARRAY_COUNT, START_ID} from './constant.js';
 
-const picturesList = document.querySelector('.picture');
+const picturesList = document.querySelector('.pictures');
 const picturesListFragment = document.createDocumentFragment();
-
 const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
-
 const pictures = createPhotos(PHOTO_ARRAY_COUNT, START_ID);
 
-const createPictures = () => {
-  pictures.forEach(({id, url, description, likes, comments}) => {
+const createGallery = () => {
+  pictures.forEach(({url, description, likes, comments}) => {
     const pictureElement = pictureTemplate.cloneNode(true);
     pictureElement.querySelector('.picture__img').src = url;
     pictureElement.querySelector('.picture__img').alt = description;
@@ -20,4 +18,4 @@ const createPictures = () => {
   picturesList.appendChild(picturesListFragment);
 };
 
-export {createPictures};
+export {createGallery};
