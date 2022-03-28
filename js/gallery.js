@@ -1,12 +1,9 @@
-import {createPhotos} from './offer.js';
-import {PHOTO_ARRAY_COUNT, START_ID} from './constant.js';
 
 const picturesList = document.querySelector('.pictures');
 const picturesListFragment = document.createDocumentFragment();
 const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
-const pictures = createPhotos(PHOTO_ARRAY_COUNT, START_ID);
 
-const createGallery = () => {
+const createGallery = (pictures) => {
   pictures.forEach(({url, description, likes, comments}) => {
     const pictureElement = pictureTemplate.cloneNode(true);
     pictureElement.querySelector('.picture__img').src = url;
