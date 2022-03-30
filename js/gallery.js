@@ -1,4 +1,4 @@
-
+import {openBigPicture} from './big-picture-modal.js';
 const picturesList = document.querySelector('.pictures');
 const picturesListFragment = document.createDocumentFragment();
 const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
@@ -13,6 +13,8 @@ const createGallery = (pictures) => {
     picturesListFragment.appendChild(pictureElement);
   });
   picturesList.appendChild(picturesListFragment);
+  const picture = document.querySelectorAll('.picture');
+  openBigPicture (picture);
 };
 
-export {createGallery};
+export {createGallery, picturesList};
