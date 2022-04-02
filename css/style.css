@@ -1416,3 +1416,10 @@ main {
 .hidden {
   display: none;
 }
+
+/* Стили для Pristine
+   ========================================================================== */
+
+.img-upload__error-text {
+  font-size: 9px;
+}
