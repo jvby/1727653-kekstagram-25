@@ -12,6 +12,7 @@ const commentTemplate = document.querySelector('#comment').content.querySelector
 const picturesContainer = document.querySelector('.pictures');
 const body = document.querySelector('body');
 
+//Закрываем большое окно
 function closeBigPicture (evt)  {
   evt.preventDefault();
   bigPicture.classList.add('hidden');
@@ -20,12 +21,14 @@ function closeBigPicture (evt)  {
   body.classList.remove('modal-open');
 }
 
+//Проверяем, что нажали Escape для закрытия окна, и вызываем функцию закрытия окна
 function closeBigPictureEscKeydown (evt)  {
   if (isEscapeKey(evt)) {
     closeBigPicture(evt);
   }
 }
 
+//Добавляем атрибуты для окна с большой картинкой
 const addBigPictureAttributes = (index) =>{
   urlBigPicture.src = photos[index].url;
   urlBigPicture.alt = photos[index].description;
@@ -42,6 +45,8 @@ const addBigPictureAttributes = (index) =>{
   });
 };
 
+
+// Добаввляем обработчик событий на галерею для открытия большой картинки
 const openBigPicture = () => {
   picturesContainer.addEventListener('click', (evt) => {
     evt.preventDefault();
