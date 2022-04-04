@@ -1,4 +1,3 @@
-import {photos} from './main.js';
 import {isEscapeKey} from './utils.js';
 
 const bigPicture = document.querySelector('.big-picture');
@@ -29,14 +28,14 @@ function closeBigPictureEscKeydown (evt)  {
 }
 
 //Добавляем атрибуты для окна с большой картинкой
-const addBigPictureAttributes = (index) =>{
-  urlBigPicture.src = photos[index].url;
-  urlBigPicture.alt = photos[index].description;
-  likesCount.textContent = photos[index].likes;
-  description.textContent = photos[index].description;
-  commentsCount.textContent = photos[index].comments.length;
+const addBigPictureAttributes = (photo) =>{
+  urlBigPicture.src = photo.url;
+  urlBigPicture.alt = photo.description;
+  likesCount.textContent = photo.likes;
+  description.textContent = photo.description;
+  commentsCount.textContent = photo.comments.length;
   commentList.innerHTML = '';
-  photos[index].comments.forEach((comment)=> {
+  photo.comments.forEach((comment)=> {
     const commentElement = commentTemplate.cloneNode(true);
     commentElement.querySelector('img').src = comment.avatar;
     commentElement.querySelector('img').alt = comment.name;
@@ -47,13 +46,13 @@ const addBigPictureAttributes = (index) =>{
 
 
 // Добаввляем обработчик событий на галерею для открытия большой картинки
-const openBigPicture = () => {
+const openBigPicture = (photos) => {
   picturesContainer.addEventListener('click', (evt) => {
-    evt.preventDefault();
     if (evt.target.matches('.picture__img')) {
+      evt.preventDefault();
       const id = evt.target.id;
       const index = id - 1;
-      addBigPictureAttributes(index);
+      addBigPictureAttributes(photos[index]);
       bigPicture.classList.remove('hidden');
       bigPictureCancel.addEventListener('click',  closeBigPicture);
       document.addEventListener('keydown', closeBigPictureEscKeydown);

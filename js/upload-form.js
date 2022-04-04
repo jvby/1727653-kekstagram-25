@@ -1,4 +1,5 @@
 import {isEscapeKey} from './utils.js';
+import {HASHTAG_VALIDATION_ERROR_MESSAGE, DESCRIPTION_LENGTH_ERROR_MESSAGE, MAX_HASHTAG_COUNT, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, DESCRIPTION_LENGTH_FIELD, INCREASE_ZOOM_BUTTON_CLASS, REDUCE_ZOOM_BUTTON_CLASS, HASHTAG_MASK} from './constant.js';
 const scaleBlock = document.querySelector('.img-upload__scale');
 const scaleValue = document.querySelector('.scale__control--value');
 const uploadForm = document.querySelector('#upload-select-image');
@@ -8,7 +9,6 @@ const uploadFile = document.querySelector('#upload-file');
 const descriptionField = document.querySelector('.text__description');
 const hashtagsField = document.querySelector('.text__hashtags');
 const body = document.querySelector('body');
-const hashtagErrorMessage = 'ХешТег введен неверно';
 
 //Подключаем Pristine
 const formValidation = new Pristine(uploadForm, {
@@ -19,9 +19,8 @@ const formValidation = new Pristine(uploadForm, {
 });
 
 //Предварительно подготавливаем массив с хештегами
-const improveText = (text) => {
-  text = text.toLowerCase();
-  text = text.trim();
+const cleanText = (text) => {
+  text = text.toLowerCase().trim();
   for (let i = 1; i < text.length; i++) {
     text = text.replace('  ',' ');
   }
@@ -29,47 +28,53 @@ const improveText = (text) => {
 };
 
 //Получаем элемент массива хештегов и проверяем его регуляркой
-const isMatchRegExp = (arrayItem) => {
-  const regExp = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
-  return regExp.test(arrayItem);
-};
+const validateHashtagByMask = (hashtagItem) => HASHTAG_MASK.test(hashtagItem);
 
 //Пробегаемся по каждому элементу массива хештегов и отправляем элемент на проверку регулярным выражением
-const validateRegExp = (array) => array.every(isMatchRegExp);
+const validateRegExp = (hashtags) => hashtags.every(validateHashtagByMask);
 
 //Проверяем количество шештегов
-const validateArrayLength = (array) => array.length <= 5;
+const validateHashtagsCount = (hashtags) => hashtags.length <= MAX_HASHTAG_COUNT;
 
 //Проверяем массив хештегов на дубликаты
-const hasNoDuplicateItem = (array) => {
-  const workArray = array.slice().sort();
+const validateNoDuplicateItem = (hashtags) => {
+  const hashtagsList = hashtags.slice().sort();
 
-  for (let i = 0; i < workArray.length; i++) {
-    if (workArray[i] === workArray[i + 1]) {
+  for (let i = 0; i < hashtagsList.length; i++) {
+    if (hashtagsList[i] === hashtagsList[i + 1]) {
       return false;
     }
   }
-
   return true;
+};
+
+//Проверяем поле description на длинну
+const validateDescriptionLength = () => {
+  const description = descriptionField.value.length;
+  if (description <= DESCRIPTION_LENGTH_FIELD) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 //Проверяем хештеги
 const validateHashtags = () => {
-  let hashtagArray = hashtagsField.value;
+  let hashtagsList = hashtagsField.value;
 
-  hashtagArray = improveText(hashtagArray);
+  hashtagsList = cleanText(hashtagsList);
 
-  if (hashtagArray === '') {
+  if (hashtagsList === '') {
     return true;
   }
 
-  hashtagArray = hashtagArray.split(' ');
+  hashtagsList = hashtagsList.split(' ');
 
-  const isArrayLengthValid = validateArrayLength(hashtagArray);
-  const isRegExpValid = validateRegExp(hashtagArray);
-  const hasNoDuplicates = hasNoDuplicateItem(hashtagArray);
-  const validateResult = isArrayLengthValid && isRegExpValid && hasNoDuplicates;
-  return validateResult;
+  const isHashtagsListLengthValid = validateHashtagsCount(hashtagsList);
+  const isRegExpValid = validateRegExp(hashtagsList);
+  const hasNoDuplicates = validateNoDuplicateItem(hashtagsList);
+  const validationResult = isHashtagsListLengthValid && isRegExpValid && hasNoDuplicates;
+  return validationResult;
 };
 
 
@@ -77,10 +82,10 @@ const validateHashtags = () => {
 const controlScale = (evt) => {
   evt.preventDefault();
   const current = Number(scaleValue.value.split('%')[0]);
-  if (evt.target.matches('.scale__control--smaller')&& current > 25) {
-    scaleValue.value = `${current - 25}%`;
-  } if (evt.target.matches('.scale__control--bigger')&& current < 100) {
-    scaleValue.value = `${current + 25}%`;
+  if (evt.target.matches(REDUCE_ZOOM_BUTTON_CLASS)&& current > ZOOM_MIN) {
+    scaleValue.value = `${current - ZOOM_STEP}%`;
+  } if (evt.target.matches(INCREASE_ZOOM_BUTTON_CLASS)&& current < ZOOM_MAX) {
+    scaleValue.value = `${current + ZOOM_STEP}%`;
   }
 };
 
@@ -104,19 +109,13 @@ const closeForm = (evt) => {
 function submitForm (evt) {
   if(!formValidation.validate()) {
     evt.preventDefault();
-    //descriptionField.value = '';
     hashtagsField.value = '';
-    //formValidation.reset();
   } else {
     body.classList.remove('modal-open');
-    //uploadFile.value = '';
-    //descriptionField.value = '';
-    //hashtagsField.value = '';
     closeButton.removeEventListener('click', closeForm);
     uploadForm.removeEventListener('submit', submitForm);
     document.removeEventListener('keydown', closeFormKeydown);
     scaleBlock.removeEventListener('click', controlScale);
-    //formValidation.reset();
   }
 }
 
@@ -135,7 +134,8 @@ const openUploadForm = () => {
   document.addEventListener('keydown', closeFormKeydown);
   scaleBlock.addEventListener('click', controlScale);
   body.classList.add('modal-open');
-  formValidation.addValidator(hashtagsField, validateHashtags, hashtagErrorMessage);
+  formValidation.addValidator(hashtagsField, validateHashtags, HASHTAG_VALIDATION_ERROR_MESSAGE);
+  formValidation.addValidator(descriptionField, validateDescriptionLength, DESCRIPTION_LENGTH_ERROR_MESSAGE);
 };
 
 export {openUploadForm};
