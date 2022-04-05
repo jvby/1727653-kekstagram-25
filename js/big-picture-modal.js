@@ -1,4 +1,6 @@
 import {isEscapeKey} from './utils.js';
+import {ONE_TIME_BIG_PICTURE_COMMENTS} from './constant.js';
+
 
 const bigPicture = document.querySelector('.big-picture');
 const bigPictureCancel = bigPicture.querySelector('.big-picture__cancel');
@@ -10,6 +12,10 @@ const description = bigPicture.querySelector('.social__caption');
 const commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 const picturesContainer = document.querySelector('.pictures');
 const body = document.querySelector('body');
+const commentsNumberView = document.querySelector('.social__comment-count');
+const commentsLoaderButton = document.querySelector('.comments-loader');
+let commentsNumber = 0;
+//let commentsContent = [];
 
 //Закрываем большое окно
 function closeBigPicture (evt)  {
@@ -27,6 +33,26 @@ function closeBigPictureEscKeydown (evt)  {
   }
 }
 
+//Показываем коментарии к большой картинке
+const showComments = (comments, number) => {
+  //const finishIndex = commentsNumber + number - 1;
+  for (let i = commentsNumber; number >= 1 ; i++) {
+    if (i >= comments.length) {
+      commentsLoaderButton.classList.add('hidden');
+      break;
+    }
+    const commentElement = commentTemplate.cloneNode(true);
+    commentElement.querySelector('img').src = comments[i].avatar;
+    commentElement.querySelector('img').alt = comments[i].name;
+    commentElement.querySelector('p').textContent = comments[i].message;
+    commentList.appendChild(commentElement);
+    number--;
+    commentsNumber++;
+  }
+  //commentsNumberView.textContent = commentsNumber;
+};
+
+
 //Добавляем атрибуты для окна с большой картинкой
 const addBigPictureAttributes = (photo) =>{
   urlBigPicture.src = photo.url;
@@ -35,13 +61,10 @@ const addBigPictureAttributes = (photo) =>{
   description.textContent = photo.description;
   commentsCount.textContent = photo.comments.length;
   commentList.innerHTML = '';
-  photo.comments.forEach((comment)=> {
-    const commentElement = commentTemplate.cloneNode(true);
-    commentElement.querySelector('img').src = comment.avatar;
-    commentElement.querySelector('img').alt = comment.name;
-    commentElement.querySelector('p').textContent = comment.message;
-    commentList.appendChild(commentElement);
-  });
+  commentsLoaderButton.classList.remove('hidden');
+  commentsNumber = 0;
+  showComments(photo.comments, ONE_TIME_BIG_PICTURE_COMMENTS);
+  commentsLoaderButton.addEventListener('click',  showComments(photo.comments, ONE_TIME_BIG_PICTURE_COMMENTS));
 };
 
 
@@ -56,8 +79,7 @@ const openBigPicture = (photos) => {
       bigPicture.classList.remove('hidden');
       bigPictureCancel.addEventListener('click',  closeBigPicture);
       document.addEventListener('keydown', closeBigPictureEscKeydown);
-      document.querySelector('.social__comment-count').classList.add('hidden');
-      document.querySelector('.comments-loader').classList.add('hidden');
+      //commentsLoaderButton.addEventListener('click',  showComments(commentsContent, ONE_TIME_BIG_PICTURE_COMMENTS));
       body.classList.add('modal-open');
     }
   });
