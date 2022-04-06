@@ -67,7 +67,7 @@ const addBigPictureAttributes = (photo) =>{
   if (commentsContent.length > ONE_TIME_BIG_PICTURE_COMMENTS) {
     commentsLoaderButton.classList.remove('hidden');
   }
-  showComments(photo.comments, ONE_TIME_BIG_PICTURE_COMMENTS);
+  showComments(commentsContent, ONE_TIME_BIG_PICTURE_COMMENTS);
 };
 
 //Функция обработчика событий по реакции на нажатие кнопки добавить коментариев на большой картинке
