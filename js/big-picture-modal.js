@@ -15,22 +15,19 @@ const body = document.querySelector('body');
 const commentsNumberView = document.querySelector('.social__comment-count');
 const commentsLoaderButton = document.querySelector('.comments-loader');
 let commentsNumber = 0;
-//let commentsContent = [];
-
-//Закрываем большое окно
-function closeBigPicture (evt)  {
-  evt.preventDefault();
-  bigPicture.classList.add('hidden');
-  bigPictureCancel.removeEventListener('click',  closeBigPicture);
-  document.removeEventListener('keydown', closeBigPictureEscKeydown);
-  body.classList.remove('modal-open');
-}
+let photosList = [];
+let commentsContent = [];
 
 //Проверяем, что нажали Escape для закрытия окна, и вызываем функцию закрытия окна
-function closeBigPictureEscKeydown (evt)  {
+const onBigPictureEscKeydown = (evt) => {
   if (isEscapeKey(evt)) {
     closeBigPicture(evt);
   }
+};
+
+//Функция реакция по нажатию на кнопку cancel
+function onBigPictureCancelClick (evt) {
+  closeBigPicture(evt);
 }
 
 //Показываем коментарии к большой картинке
@@ -48,8 +45,12 @@ const showComments = (comments, number) => {
     commentList.appendChild(commentElement);
     number--;
     commentsNumber++;
+    if (i + 1>= comments.length) {
+      commentsLoaderButton.classList.add('hidden');
+      break;
+    }
   }
-  //commentsNumberView.textContent = commentsNumber;
+  commentsNumberView.innerHTML = `${commentsNumber} из <span class="comments-count">${comments.length}</span> комментариев`;
 };
 
 
@@ -61,29 +62,53 @@ const addBigPictureAttributes = (photo) =>{
   description.textContent = photo.description;
   commentsCount.textContent = photo.comments.length;
   commentList.innerHTML = '';
-  commentsLoaderButton.classList.remove('hidden');
   commentsNumber = 0;
+  commentsContent = photo.comments;
+  if (commentsContent.length > ONE_TIME_BIG_PICTURE_COMMENTS) {
+    commentsLoaderButton.classList.remove('hidden');
+  }
   showComments(photo.comments, ONE_TIME_BIG_PICTURE_COMMENTS);
-  commentsLoaderButton.addEventListener('click',  showComments(photo.comments, ONE_TIME_BIG_PICTURE_COMMENTS));
 };
 
+//Функция обработчика событий по реакции на нажатие кнопки добавить коментариев на большой картинке
+const onAddCoommentsButtonClick = (evt) => {
+  evt.preventDefault();
+  showComments(commentsContent, ONE_TIME_BIG_PICTURE_COMMENTS);
+};
 
-// Добаввляем обработчик событий на галерею для открытия большой картинки
+//Функция обработчика событий по реакции на нажатие на картинку в галерее
+const onGalleryPictureClick = (evt) =>{
+  if (!evt.target.matches('.picture__img')) {
+    return;
+  }
+  evt.preventDefault();
+  const id = evt.target.id;
+  const index = id - 1;
+  addBigPictureAttributes(photosList[index]);
+  bigPicture.classList.remove('hidden');
+  bigPictureCancel.addEventListener('click',  onBigPictureCancelClick);
+  document.addEventListener('keydown', onBigPictureEscKeydown);
+  commentsLoaderButton.addEventListener('click',  onAddCoommentsButtonClick);
+  body.classList.add('modal-open');
+};
+
+// Добавляем обработчик событий на галерею для открытия большой картинки
 const openBigPicture = (photos) => {
-  picturesContainer.addEventListener('click', (evt) => {
-    if (evt.target.matches('.picture__img')) {
-      evt.preventDefault();
-      const id = evt.target.id;
-      const index = id - 1;
-      addBigPictureAttributes(photos[index]);
-      bigPicture.classList.remove('hidden');
-      bigPictureCancel.addEventListener('click',  closeBigPicture);
-      document.addEventListener('keydown', closeBigPictureEscKeydown);
-      //commentsLoaderButton.addEventListener('click',  showComments(commentsContent, ONE_TIME_BIG_PICTURE_COMMENTS));
-      body.classList.add('modal-open');
-    }
-  });
+  photosList = [];
+  commentsContent = [];
+  photosList = photos;
+  picturesContainer.addEventListener('click', onGalleryPictureClick);
 };
 
+//Закрываем большое окно
+function closeBigPicture (evt) {
+  evt.preventDefault();
+  document.removeEventListener('keydown', onBigPictureEscKeydown);
+  bigPictureCancel.removeEventListener('click',  onBigPictureCancelClick);
+  commentsLoaderButton.removeEventListener('click',  onAddCoommentsButtonClick);
+  commentsLoaderButton.classList.add('hidden');
+  bigPicture.classList.add('hidden');
+  body.classList.remove('modal-open');
+}
 
 export {openBigPicture};

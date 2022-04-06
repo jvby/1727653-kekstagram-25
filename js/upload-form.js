@@ -89,21 +89,48 @@ const controlScale = (evt) => {
   }
 };
 
+//Проверяем, что нажата кнопка Escape, и не в фокусе поле хештегов или описания
+function closeFormKeydown (evt) {
+  if (isEscapeKey(evt) && evt.target !== descriptionField && evt.target !== hashtagsField) {
+    closeForm(evt);
+  }
+}
+
+//Коллбек обработчика событий закрытия формы отправки кнопкой Escape
+const onZoomControlButtonClick = (evt) => {
+  controlScale(evt);
+};
+
+//Коллбек обработчика событий закрытия формы отправки кнопкой Escape
+const onFormEscKeydown = (evt) => {
+  closeFormKeydown(evt);
+};
+
+//Коллбек обработчика события отправки формы
+const formSubmitHandler = (evt) => {
+  submitForm(evt);
+};
+
+//Коллбек обработчика событий закрытия формы
+const onCloseButtonClick = (evt) => {
+  closeForm(evt);
+};
+
 
 //Закрываем форму загрузки фотографий
-const closeForm = (evt) => {
+function closeForm (evt) {
   evt.preventDefault();
   uploadFormOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
   uploadFile.value = '';
   descriptionField.value = '';
   hashtagsField.value = '';
-  closeButton.removeEventListener('click', closeForm);
-  uploadForm.removeEventListener('submit', submitForm);
-  document.removeEventListener('keydown', closeFormKeydown);
-  scaleBlock.removeEventListener('click', controlScale);
+  closeButton.removeEventListener('click', onCloseButtonClick);
+  uploadForm.removeEventListener('submit', formSubmitHandler);
+  document.removeEventListener('keydown', onFormEscKeydown);
+  scaleBlock.removeEventListener('click', onZoomControlButtonClick);
   formValidation.reset();
-};
+}
 
 // Отправляем форму и проводим валидацию
 function submitForm (evt) {
@@ -112,27 +139,20 @@ function submitForm (evt) {
     hashtagsField.value = '';
   } else {
     body.classList.remove('modal-open');
-    closeButton.removeEventListener('click', closeForm);
-    uploadForm.removeEventListener('submit', submitForm);
-    document.removeEventListener('keydown', closeFormKeydown);
-    scaleBlock.removeEventListener('click', controlScale);
-  }
-}
-
-//Проверяем, что нажата кнопка Escape, и не в фокусе поле хештегов или описания
-function closeFormKeydown (evt) {
-  if (isEscapeKey(evt) && evt.target !== descriptionField && evt.target !== hashtagsField) {
-    closeForm(evt);
+    closeButton.removeEventListener('click', onCloseButtonClick);
+    uploadForm.removeEventListener('submit', formSubmitHandler);
+    document.removeEventListener('keydown', onFormEscKeydown);
+    scaleBlock.removeEventListener('click', onZoomControlButtonClick);
   }
 }
 
 //Открываем форму загрузки изображения
 const openUploadForm = () => {
   uploadFormOverlay.classList.remove('hidden');
-  closeButton.addEventListener('click', closeForm);
-  uploadForm.addEventListener('submit', submitForm);
-  document.addEventListener('keydown', closeFormKeydown);
-  scaleBlock.addEventListener('click', controlScale);
+  closeButton.addEventListener('click', onCloseButtonClick);
+  uploadForm.addEventListener('submit', formSubmitHandler);
+  document.addEventListener('keydown', onFormEscKeydown);
+  scaleBlock.addEventListener('click', onZoomControlButtonClick);
   body.classList.add('modal-open');
   formValidation.addValidator(hashtagsField, validateHashtags, ERROR_MESSAGE.HASHTAG_VALIDATION);
   formValidation.addValidator(descriptionField, validateDescriptionLength, ERROR_MESSAGE.DESCRIPTION_LENGTH);
