@@ -26,9 +26,9 @@ const onBigPictureEscKeydown = (evt) => {
 };
 
 //Функция реакция по нажатию на кнопку cancel
-function onBigPictureCancelClick (evt) {
+const onBigPictureCancelClick = (evt) => {
   closeBigPicture(evt);
-}
+};
 
 //Показываем коментарии к большой картинке
 const showComments = (comments, number) => {
