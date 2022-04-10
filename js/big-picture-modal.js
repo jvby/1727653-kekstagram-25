@@ -15,8 +15,8 @@ const body = document.querySelector('body');
 const commentsNumberView = document.querySelector('.social__comment-count');
 const commentsLoaderButton = document.querySelector('.comments-loader');
 let commentsNumber = 0;
-let photosList = [];
-let commentsContent = [];
+let photos = [];
+let comments = [];
 
 //Проверяем, что нажали Escape для закрытия окна, и вызываем функцию закрытия окна
 const onBigPictureEscKeydown = (evt) => {
@@ -35,9 +35,9 @@ const onBigPictureCancelClick = (evt) => {
 //Отрисовываем один коментарий
 const showOneComment = (commentIndex) => {
   const commentElement = commentTemplate.cloneNode(true);
-  commentElement.querySelector('img').src = commentsContent[commentIndex].avatar;
-  commentElement.querySelector('img').alt = commentsContent[commentIndex].name;
-  commentElement.querySelector('p').textContent = commentsContent[commentIndex].message;
+  commentElement.querySelector('img').src = comments[commentIndex].avatar;
+  commentElement.querySelector('img').alt = comments[commentIndex].name;
+  commentElement.querySelector('p').textContent = comments[commentIndex].message;
   commentList.appendChild(commentElement);
   commentsNumber++;
 };
@@ -49,12 +49,12 @@ const showMoreComments = () => {
   for (let i = startCommentIndex; numberCommentsToShow >= 1 ; i++) {
     showOneComment(i);
     numberCommentsToShow--;
-    if (commentsNumber>= commentsContent.length) {
+    if (commentsNumber>= comments.length) {
       commentsLoaderButton.classList.add('hidden');
       break;
     }
   }
-  commentsNumberView.innerHTML = `${commentsNumber} из <span class="comments-count">${commentsContent.length}</span> комментариев`;
+  commentsNumberView.innerHTML = `${commentsNumber} из <span class="comments-count">${comments.length}</span> комментариев`;
 };
 
 
@@ -67,17 +67,15 @@ const addBigPictureAttributes = (photo) =>{
   commentsCount.textContent = photo.comments.length;
   commentList.innerHTML = '';
   commentsNumber = 0;
-  commentsContent = photo.comments;
+  comments = photo.comments;
   for (let i = 0; ONE_TIME_BIG_PICTURE_COMMENTS > commentsNumber ; i++) {
     showOneComment(i);
   }
-  commentsNumberView.innerHTML = `${commentsNumber} из <span class="comments-count">${commentsContent.length}</span> комментариев`;
-  if (commentsContent.length > ONE_TIME_BIG_PICTURE_COMMENTS) {
+  commentsNumberView.innerHTML = `${commentsNumber} из <span class="comments-count">${comments.length}</span> комментариев`;
+  if (comments.length > ONE_TIME_BIG_PICTURE_COMMENTS) {
     commentsLoaderButton.classList.remove('hidden');
   }
 };
-
-//Отрисовываем коментарий
 
 //Функция обработчика событий по реакции на нажатие кнопки добавить коментариев на большой картинке
 const onAddCoommentsButtonClick = (evt) => {
@@ -93,7 +91,7 @@ const onGalleryPictureClick = (evt) =>{
   evt.preventDefault();
   const id = evt.target.id;
   const index = id - 1;
-  addBigPictureAttributes(photosList[index]);
+  addBigPictureAttributes(photos[index]);
   bigPicture.classList.remove('hidden');
   bigPictureCancel.addEventListener('click',  onBigPictureCancelClick);
   document.addEventListener('keydown', onBigPictureEscKeydown);
@@ -102,10 +100,10 @@ const onGalleryPictureClick = (evt) =>{
 };
 
 // Добавляем обработчик событий на галерею для открытия большой картинки
-const openBigPicture = (photos) => {
-  photosList = [];
-  commentsContent = [];
-  photosList = photos;
+const openBigPicture = (pictures) => {
+  photos = [];
+  comments = [];
+  photos = pictures;
   picturesContainer.addEventListener('click', onGalleryPictureClick);
 };
 

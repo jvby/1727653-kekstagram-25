@@ -1,7 +1,7 @@
 import {isEscapeKey} from './utils.js';
-import {ERROR_MESSAGE, MAX_HASHTAG_COUNT, ZOOM, DESCRIPTION_LENGTH_FIELD, ZOOM_CONTROL_BUTTON_CLASS, HASHTAG_MASK} from './constant.js';
+import {ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD, ZoomControlButtonClass, HASHTAG_MASK} from './constant.js';
 const scaleBlock = document.querySelector('.img-upload__scale');
-const previewPhoto = document.querySelector('.img-upload__preview img');
+const imgPreviewPhoto = document.querySelector('.img-upload__preview img');
 const scaleValue = document.querySelector('.scale__control--value');
 const uploadForm = document.querySelector('#upload-select-image');
 const uploadFormOverlay = document.querySelector('.img-upload__overlay');
@@ -84,14 +84,14 @@ const validateHashtags = () => {
 const controlScale = (evt) => {
   evt.preventDefault();
   let scale = Number(scaleValue.value.split('%')[0]);
-  if (evt.target.matches(ZOOM_CONTROL_BUTTON_CLASS.REDUCE)&& scale > ZOOM.MIN) {
-    scale = scale - ZOOM.STEP;
+  if (evt.target.matches(ZoomControlButtonClass.REDUCE)&& scale > ZoomRange.MIN) {
+    scale = scale - ZoomRange.STEP;
     scaleValue.value = `${scale}%`;
-    previewPhoto.style.transform = `scale(${scale/100})`;
-  } if (evt.target.matches(ZOOM_CONTROL_BUTTON_CLASS.INCREASE)&& scale < ZOOM.MAX) {
-    scale = scale + ZOOM.STEP;
+    imgPreviewPhoto.style.transform = `scale(${scale/100})`;
+  } if (evt.target.matches(ZoomControlButtonClass.INCREASE)&& scale < ZoomRange.MAX) {
+    scale = scale + ZoomRange.STEP;
     scaleValue.value = `${scale}%`;
-    previewPhoto.style.transform = `scale(${scale/100})`;
+    imgPreviewPhoto.style.transform = `scale(${scale/100})`;
   }
 };
 
@@ -156,25 +156,25 @@ function submitForm (evt) {
 const onEffectCheckboxChange = (evt) => {
   evt.preventDefault();
   if (evt.target.matches('input[type="radio"]')) {
-    previewPhoto.className = '';
-    previewPhoto.classList.add(`effects__preview--${evt.target.value}`);
+    imgPreviewPhoto.className = '';
+    imgPreviewPhoto.classList.add(`effects__preview--${evt.target.value}`);
   }
 };
 
 //Открываем форму загрузки изображения
 const openUploadForm = () => {
   uploadFormOverlay.classList.remove('hidden');
-  scaleValue.value = `${ZOOM.DEFAULT}%`;
-  previewPhoto.className = '';
-  previewPhoto.style.transform = `scale(${ZOOM.DEFAULT/100})`;
+  scaleValue.value = `${ZoomRange.DEFAULT}%`;
+  imgPreviewPhoto.className = '';
+  imgPreviewPhoto.style.transform = `scale(${ZoomRange.DEFAULT/100})`;
   closeButton.addEventListener('click', onCloseButtonClick);
   uploadForm.addEventListener('submit', formSubmitHandler);
   document.addEventListener('keydown', onFormEscKeydown);
   scaleBlock.addEventListener('click', onZoomControlButtonClick);
   effectsList.addEventListener('change', onEffectCheckboxChange);
   body.classList.add('modal-open');
-  formValidation.addValidator(hashtagsField, validateHashtags, ERROR_MESSAGE.HASHTAG_VALIDATION);
-  formValidation.addValidator(descriptionField, validateDescriptionLength, ERROR_MESSAGE.DESCRIPTION_LENGTH);
+  formValidation.addValidator(hashtagsField, validateHashtags, ErrorMessage.HASHTAG_VALIDATION);
+  formValidation.addValidator(descriptionField, validateDescriptionLength, ErrorMessage.DESCRIPTION_LENGTH);
 };
 
 export {openUploadForm};
