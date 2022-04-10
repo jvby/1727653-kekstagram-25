@@ -1,6 +1,7 @@
 import {isEscapeKey} from './utils.js';
 import {ERROR_MESSAGE, MAX_HASHTAG_COUNT, ZOOM, DESCRIPTION_LENGTH_FIELD, ZOOM_CONTROL_BUTTON_CLASS, HASHTAG_MASK} from './constant.js';
 const scaleBlock = document.querySelector('.img-upload__scale');
+const previewPhoto = document.querySelector('.img-upload__preview img');
 const scaleValue = document.querySelector('.scale__control--value');
 const uploadForm = document.querySelector('#upload-select-image');
 const uploadFormOverlay = document.querySelector('.img-upload__overlay');
@@ -8,6 +9,7 @@ const closeButton = document.querySelector('#upload-cancel');
 const uploadFile = document.querySelector('#upload-file');
 const descriptionField = document.querySelector('.text__description');
 const hashtagsField = document.querySelector('.text__hashtags');
+const effectsList = document.querySelector('.effects__list');
 const body = document.querySelector('body');
 
 //Подключаем Pristine
@@ -81,11 +83,15 @@ const validateHashtags = () => {
 //Управляем процентом увеличения картинки
 const controlScale = (evt) => {
   evt.preventDefault();
-  const current = Number(scaleValue.value.split('%')[0]);
-  if (evt.target.matches(ZOOM_CONTROL_BUTTON_CLASS.REDUCE)&& current > ZOOM.MIN) {
-    scaleValue.value = `${current - ZOOM.STEP}%`;
-  } if (evt.target.matches(ZOOM_CONTROL_BUTTON_CLASS.INCREASE)&& current < ZOOM.MAX) {
-    scaleValue.value = `${current + ZOOM.STEP}%`;
+  let scale = Number(scaleValue.value.split('%')[0]);
+  if (evt.target.matches(ZOOM_CONTROL_BUTTON_CLASS.REDUCE)&& scale > ZOOM.MIN) {
+    scale = scale - ZOOM.STEP;
+    scaleValue.value = `${scale}%`;
+    previewPhoto.style.transform = `scale(${scale/100})`;
+  } if (evt.target.matches(ZOOM_CONTROL_BUTTON_CLASS.INCREASE)&& scale < ZOOM.MAX) {
+    scale = scale + ZOOM.STEP;
+    scaleValue.value = `${scale}%`;
+    previewPhoto.style.transform = `scale(${scale/100})`;
   }
 };
 
@@ -146,13 +152,26 @@ function submitForm (evt) {
   }
 }
 
+//Ловим событие переключения чекбокса
+const onEffectCheckboxChange = (evt) => {
+  evt.preventDefault();
+  if (evt.target.matches('input[type="radio"]')) {
+    previewPhoto.className = '';
+    previewPhoto.classList.add(`effects__preview--${evt.target.value}`);
+  }
+};
+
 //Открываем форму загрузки изображения
 const openUploadForm = () => {
   uploadFormOverlay.classList.remove('hidden');
+  scaleValue.value = `${ZOOM.DEFAULT}%`;
+  previewPhoto.className = '';
+  previewPhoto.style.transform = `scale(${ZOOM.DEFAULT/100})`;
   closeButton.addEventListener('click', onCloseButtonClick);
   uploadForm.addEventListener('submit', formSubmitHandler);
   document.addEventListener('keydown', onFormEscKeydown);
   scaleBlock.addEventListener('click', onZoomControlButtonClick);
+  effectsList.addEventListener('change', onEffectCheckboxChange);
   body.classList.add('modal-open');
   formValidation.addValidator(hashtagsField, validateHashtags, ERROR_MESSAGE.HASHTAG_VALIDATION);
   formValidation.addValidator(descriptionField, validateDescriptionLength, ERROR_MESSAGE.DESCRIPTION_LENGTH);
