@@ -1,6 +1,7 @@
 import {isEscapeKey} from './utils.js';
-import {HASHTAG_VALIDATION_ERROR_MESSAGE, DESCRIPTION_LENGTH_ERROR_MESSAGE, MAX_HASHTAG_COUNT, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, DESCRIPTION_LENGTH_FIELD, INCREASE_ZOOM_BUTTON_CLASS, REDUCE_ZOOM_BUTTON_CLASS, HASHTAG_MASK} from './constant.js';
+import {ERROR_MESSAGE, MAX_HASHTAG_COUNT, ZOOM, DESCRIPTION_LENGTH_FIELD, ZOOM_CONTROL_BUTTON_CLASS, HASHTAG_MASK} from './constant.js';
 const scaleBlock = document.querySelector('.img-upload__scale');
+const previewPhoto = document.querySelector('.img-upload__preview img');
 const scaleValue = document.querySelector('.scale__control--value');
 const uploadForm = document.querySelector('#upload-select-image');
 const uploadFormOverlay = document.querySelector('.img-upload__overlay');
@@ -8,6 +9,7 @@ const closeButton = document.querySelector('#upload-cancel');
 const uploadFile = document.querySelector('#upload-file');
 const descriptionField = document.querySelector('.text__description');
 const hashtagsField = document.querySelector('.text__hashtags');
+const effectsList = document.querySelector('.effects__list');
 const body = document.querySelector('body');
 
 //Подключаем Pristine
@@ -81,43 +83,17 @@ const validateHashtags = () => {
 //Управляем процентом увеличения картинки
 const controlScale = (evt) => {
   evt.preventDefault();
-  const current = Number(scaleValue.value.split('%')[0]);
-  if (evt.target.matches(REDUCE_ZOOM_BUTTON_CLASS)&& current > ZOOM_MIN) {
-    scaleValue.value = `${current - ZOOM_STEP}%`;
-  } if (evt.target.matches(INCREASE_ZOOM_BUTTON_CLASS)&& current < ZOOM_MAX) {
-    scaleValue.value = `${current + ZOOM_STEP}%`;
+  let scale = Number(scaleValue.value.split('%')[0]);
+  if (evt.target.matches(ZOOM_CONTROL_BUTTON_CLASS.REDUCE)&& scale > ZOOM.MIN) {
+    scale = scale - ZOOM.STEP;
+    scaleValue.value = `${scale}%`;
+    previewPhoto.style.transform = `scale(${scale/100})`;
+  } if (evt.target.matches(ZOOM_CONTROL_BUTTON_CLASS.INCREASE)&& scale < ZOOM.MAX) {
+    scale = scale + ZOOM.STEP;
+    scaleValue.value = `${scale}%`;
+    previewPhoto.style.transform = `scale(${scale/100})`;
   }
 };
-
-
-//Закрываем форму загрузки фотографий
-const closeForm = (evt) => {
-  evt.preventDefault();
-  uploadFormOverlay.classList.add('hidden');
-  body.classList.remove('modal-open');
-  uploadFile.value = '';
-  descriptionField.value = '';
-  hashtagsField.value = '';
-  closeButton.removeEventListener('click', closeForm);
-  uploadForm.removeEventListener('submit', submitForm);
-  document.removeEventListener('keydown', closeFormKeydown);
-  scaleBlock.removeEventListener('click', controlScale);
-  formValidation.reset();
-};
-
-// Отправляем форму и проводим валидацию
-function submitForm (evt) {
-  if(!formValidation.validate()) {
-    evt.preventDefault();
-    hashtagsField.value = '';
-  } else {
-    body.classList.remove('modal-open');
-    closeButton.removeEventListener('click', closeForm);
-    uploadForm.removeEventListener('submit', submitForm);
-    document.removeEventListener('keydown', closeFormKeydown);
-    scaleBlock.removeEventListener('click', controlScale);
-  }
-}
 
 //Проверяем, что нажата кнопка Escape, и не в фокусе поле хештегов или описания
 function closeFormKeydown (evt) {
@@ -126,16 +102,79 @@ function closeFormKeydown (evt) {
   }
 }
 
+//Коллбек обработчика событий закрытия формы отправки кнопкой Escape
+const onZoomControlButtonClick = (evt) => {
+  controlScale(evt);
+};
+
+//Коллбек обработчика событий закрытия формы отправки кнопкой Escape
+const onFormEscKeydown = (evt) => {
+  closeFormKeydown(evt);
+};
+
+//Коллбек обработчика события отправки формы
+const formSubmitHandler = (evt) => {
+  submitForm(evt);
+};
+
+//Коллбек обработчика событий закрытия формы
+const onCloseButtonClick = (evt) => {
+  closeForm(evt);
+};
+
+
+//Закрываем форму загрузки фотографий
+function closeForm (evt) {
+  evt.preventDefault();
+  uploadFormOverlay.classList.add('hidden');
+  body.classList.remove('modal-open');
+  uploadFile.value = '';
+  descriptionField.value = '';
+  hashtagsField.value = '';
+  closeButton.removeEventListener('click', onCloseButtonClick);
+  uploadForm.removeEventListener('submit', formSubmitHandler);
+  document.removeEventListener('keydown', onFormEscKeydown);
+  scaleBlock.removeEventListener('click', onZoomControlButtonClick);
+  formValidation.reset();
+}
+
+// Отправляем форму и проводим валидацию
+function submitForm (evt) {
+  if(!formValidation.validate()) {
+    evt.preventDefault();
+    hashtagsField.value = '';
+  } else {
+    body.classList.remove('modal-open');
+    closeButton.removeEventListener('click', onCloseButtonClick);
+    uploadForm.removeEventListener('submit', formSubmitHandler);
+    document.removeEventListener('keydown', onFormEscKeydown);
+    scaleBlock.removeEventListener('click', onZoomControlButtonClick);
+  }
+}
+
+//Ловим событие переключения чекбокса
+const onEffectCheckboxChange = (evt) => {
+  evt.preventDefault();
+  if (evt.target.matches('input[type="radio"]')) {
+    previewPhoto.className = '';
+    previewPhoto.classList.add(`effects__preview--${evt.target.value}`);
+  }
+};
+
 //Открываем форму загрузки изображения
 const openUploadForm = () => {
   uploadFormOverlay.classList.remove('hidden');
-  closeButton.addEventListener('click', closeForm);
-  uploadForm.addEventListener('submit', submitForm);
-  document.addEventListener('keydown', closeFormKeydown);
-  scaleBlock.addEventListener('click', controlScale);
+  scaleValue.value = `${ZOOM.DEFAULT}%`;
+  previewPhoto.className = '';
+  previewPhoto.style.transform = `scale(${ZOOM.DEFAULT/100})`;
+  closeButton.addEventListener('click', onCloseButtonClick);
+  uploadForm.addEventListener('submit', formSubmitHandler);
+  document.addEventListener('keydown', onFormEscKeydown);
+  scaleBlock.addEventListener('click', onZoomControlButtonClick);
+  effectsList.addEventListener('change', onEffectCheckboxChange);
   body.classList.add('modal-open');
-  formValidation.addValidator(hashtagsField, validateHashtags, HASHTAG_VALIDATION_ERROR_MESSAGE);
-  formValidation.addValidator(descriptionField, validateDescriptionLength, DESCRIPTION_LENGTH_ERROR_MESSAGE);
+  formValidation.addValidator(hashtagsField, validateHashtags, ERROR_MESSAGE.HASHTAG_VALIDATION);
+  formValidation.addValidator(descriptionField, validateDescriptionLength, ERROR_MESSAGE.DESCRIPTION_LENGTH);
 };
 
 export {openUploadForm};
