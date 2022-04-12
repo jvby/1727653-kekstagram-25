@@ -1,15 +1,19 @@
 import {isEscapeKey} from './utils.js';
-import {ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD, ZoomControlButtonClass, HASHTAG_MASK} from './constant.js';
-const scaleBlock = document.querySelector('.img-upload__scale');
-const imgPreviewPhoto = document.querySelector('.img-upload__preview img');
-const scaleValue = document.querySelector('.scale__control--value');
+import {SliderHeatEffect, SliderPhobosEffect, SliderMarvinEffect, SliderSepiaEffect, SliderChromeEffect, SliderDefaultEffect, ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD, ZoomControlButtonClass, HASHTAG_MASK} from './constant.js';
 const uploadForm = document.querySelector('#upload-select-image');
-const uploadFormOverlay = document.querySelector('.img-upload__overlay');
-const closeButton = document.querySelector('#upload-cancel');
-const uploadFile = document.querySelector('#upload-file');
-const descriptionField = document.querySelector('.text__description');
-const hashtagsField = document.querySelector('.text__hashtags');
-const effectsList = document.querySelector('.effects__list');
+const scaleBlock = uploadForm.querySelector('.img-upload__scale');
+const imgPreviewPhoto = uploadForm.querySelector('.img-upload__preview img');
+const scaleValue = uploadForm.querySelector('.scale__control--value');
+const uploadFormOverlay = uploadForm.querySelector('.img-upload__overlay');
+const closeButton = uploadForm.querySelector('#upload-cancel');
+const uploadFile = uploadForm.querySelector('#upload-file');
+const descriptionField = uploadForm.querySelector('.text__description');
+const hashtagsField = uploadForm.querySelector('.text__hashtags');
+const effectsList = uploadForm.querySelector('.effects__list');
+const sliderValueInput = uploadForm.querySelector('.effect-level__value');
+const slider = uploadForm.querySelector('.effect-level__slider');
+const sliderContainer = uploadForm.querySelector('.img-upload__effect-level');
+const effectNoneInput = uploadForm.querySelector('#effect-none');
 const body = document.querySelector('body');
 
 //Подключаем Pristine
@@ -122,6 +126,196 @@ const onCloseButtonClick = (evt) => {
   closeForm(evt);
 };
 
+//Создаем слайдер
+const createEffectSlider = () => {
+  noUiSlider.create(slider, {
+    range: {
+      min: SliderDefaultEffect.MIN,
+      max: SliderDefaultEffect.MAX,
+    },
+    start: SliderDefaultEffect.START,
+    step: SliderDefaultEffect.STEP,
+    connect: 'lower',
+    format: {
+      to: function (value) {
+        if (Number.isInteger(value)) {
+          return value.toFixed(0);
+        }
+        return value.toFixed(0);
+      },
+      from: function (value) {
+        return parseFloat(value);
+      },
+    },
+  });
+
+  sliderContainer.classList.add('hidden');
+
+  slider.noUiSlider.on('update', () => {
+    sliderValueInput.value = slider.noUiSlider.get();
+    switch (imgPreviewPhoto.className) {
+      case 'effects__preview--none':
+        imgPreviewPhoto.style.filter = 'none';
+        sliderContainer.classList.add('hidden');
+        break;
+      case 'effects__preview--chrome':
+        imgPreviewPhoto.style.filter = `grayscale(${sliderValueInput.value})`;
+        sliderContainer.classList.remove('hidden');
+        break;
+      case 'effects__preview--sepia':
+        imgPreviewPhoto.style.filter = `sepia(${sliderValueInput.value})`;
+        sliderContainer.classList.remove('hidden');
+        break;
+      case 'effects__preview--marvin':
+        imgPreviewPhoto.style.filter = `invert(${sliderValueInput.value}%)`;
+        sliderContainer.classList.remove('hidden');
+        break;
+      case 'effects__preview--phobos':
+        imgPreviewPhoto.style.filter = `blur(${sliderValueInput.value}px)`;
+        sliderContainer.classList.remove('hidden');
+        break;
+      case 'effects__preview--heat':
+        imgPreviewPhoto.style.filter = `brightness(${sliderValueInput.value})`;
+        sliderContainer.classList.remove('hidden');
+    }
+  });
+};
+
+//Управляем эффектами через слайдер
+const onUpdateEffect = (evt) => {
+  if (evt.target.matches('input[type="radio"]')) {
+    imgPreviewPhoto.className = '';
+    imgPreviewPhoto.classList.add(`effects__preview--${evt.target.value}`);
+
+    switch (evt.target.value) {
+      case 'none':
+        imgPreviewPhoto.style.filter = 'none';
+        slider.noUiSlider.updateOptions({
+          range: {
+            min: SliderDefaultEffect.MIN,
+            max: SliderDefaultEffect.MAX,
+          },
+          start: SliderDefaultEffect.START,
+          step: SliderDefaultEffect.STEP,
+          format: {
+            to: (value) => {
+              if (Number.isInteger(value)) {
+                return value.toFixed(0);
+              }
+              return value.toFixed(0);
+            },
+            from: (value) => parseFloat(value)
+          },
+        });
+        return true;
+
+      case 'chrome':
+        slider.noUiSlider.updateOptions({
+          range: {
+            min: SliderChromeEffect.MIN,
+            max: SliderChromeEffect.MAX,
+          },
+          start: SliderChromeEffect.START,
+          step: SliderChromeEffect.STEP,
+          format: {
+            to: (value) => {
+              if (Number.isInteger(value)) {
+                return value.toFixed(0);
+              }
+              return value.toFixed(1);
+            },
+            from: (value) => parseFloat(value)
+          },
+        });
+
+        return true;
+
+      case 'sepia':
+        slider.noUiSlider.updateOptions({
+          range: {
+            min: SliderSepiaEffect.MIN,
+            max: SliderSepiaEffect.MAX,
+          },
+          start: SliderSepiaEffect.START,
+          step: SliderSepiaEffect.STEP,
+          format: {
+            to: (value) => {
+              if (Number.isInteger(value)) {
+                return value.toFixed(0);
+              }
+              return value.toFixed(1);
+            },
+            from: (value) => parseFloat(value)
+          },
+        });
+
+        return true;
+
+      case 'marvin':
+        slider.noUiSlider.updateOptions({
+          range: {
+            min: SliderMarvinEffect.MIN,
+            max: SliderMarvinEffect.MAX,
+          },
+          start: SliderMarvinEffect.START,
+          step: SliderMarvinEffect.STEP,
+          format: {
+            to: (value) => {
+              if (Number.isInteger(value)) {
+                return value.toFixed(0);
+              }
+              return value.toFixed(0);
+            },
+            from: (value) => parseFloat(value)
+          },
+        });
+
+        return true;
+
+      case 'phobos':
+        slider.noUiSlider.updateOptions({
+          range: {
+            min: SliderPhobosEffect.MIN,
+            max: SliderPhobosEffect.MAX,
+          },
+          start: SliderPhobosEffect.START,
+          step: SliderPhobosEffect.STEP,
+          format: {
+            to: (value) => {
+              if (Number.isInteger(value)) {
+                return value.toFixed(0);
+              }
+              return value.toFixed(1);
+            },
+            from: (value) => parseFloat(value)
+          },
+        });
+
+        return true;
+
+      case 'heat':
+        slider.noUiSlider.updateOptions({
+          range: {
+            min: SliderHeatEffect.MIN,
+            max: SliderHeatEffect.MAX,
+          },
+          start: SliderHeatEffect.START,
+          step: SliderHeatEffect.STEP,
+          format: {
+            to: (value) => {
+              if (Number.isInteger(value)) {
+                return value.toFixed(0);
+              }
+              return value.toFixed(1);
+            },
+            from: (value) => parseFloat(value)
+          },
+        });
+
+        return true;
+    }
+  }
+};
 
 //Закрываем форму загрузки фотографий
 function closeForm (evt) {
@@ -131,10 +325,18 @@ function closeForm (evt) {
   uploadFile.value = '';
   descriptionField.value = '';
   hashtagsField.value = '';
+  scaleValue.value = `${ZoomRange.DEFAULT}%`;
+  imgPreviewPhoto.className = '';
+  imgPreviewPhoto.style.transform = `scale(${ZoomRange.DEFAULT/100})`;
+  imgPreviewPhoto.style.filter = 'none';
+  sliderValueInput.value = '';
+  effectNoneInput.checked = true;
   closeButton.removeEventListener('click', onCloseButtonClick);
   uploadForm.removeEventListener('submit', formSubmitHandler);
   document.removeEventListener('keydown', onFormEscKeydown);
   scaleBlock.removeEventListener('click', onZoomControlButtonClick);
+  effectsList.removeEventListener('change', onUpdateEffect);
+  slider.noUiSlider.destroy();
   formValidation.reset();
 }
 
@@ -149,32 +351,26 @@ function submitForm (evt) {
     uploadForm.removeEventListener('submit', formSubmitHandler);
     document.removeEventListener('keydown', onFormEscKeydown);
     scaleBlock.removeEventListener('click', onZoomControlButtonClick);
+    effectsList.removeEventListener('change', onUpdateEffect);
+    slider.noUiSlider.destroy();
   }
 }
-
-//Ловим событие переключения чекбокса
-const onEffectCheckboxChange = (evt) => {
-  evt.preventDefault();
-  if (evt.target.matches('input[type="radio"]')) {
-    imgPreviewPhoto.className = '';
-    imgPreviewPhoto.classList.add(`effects__preview--${evt.target.value}`);
-  }
-};
 
 //Открываем форму загрузки изображения
 const openUploadForm = () => {
   uploadFormOverlay.classList.remove('hidden');
-  scaleValue.value = `${ZoomRange.DEFAULT}%`;
-  imgPreviewPhoto.className = '';
-  imgPreviewPhoto.style.transform = `scale(${ZoomRange.DEFAULT/100})`;
   closeButton.addEventListener('click', onCloseButtonClick);
   uploadForm.addEventListener('submit', formSubmitHandler);
   document.addEventListener('keydown', onFormEscKeydown);
   scaleBlock.addEventListener('click', onZoomControlButtonClick);
-  effectsList.addEventListener('change', onEffectCheckboxChange);
   body.classList.add('modal-open');
   formValidation.addValidator(hashtagsField, validateHashtags, ErrorMessage.HASHTAG_VALIDATION);
   formValidation.addValidator(descriptionField, validateDescriptionLength, ErrorMessage.DESCRIPTION_LENGTH);
+  effectsList.addEventListener('change', onUpdateEffect);
+
+  if (!slider.noUiSlider) {
+    createEffectSlider();
+  }
 };
 
 export {openUploadForm};
