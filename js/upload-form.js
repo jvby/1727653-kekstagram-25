@@ -1,5 +1,6 @@
-import {isEscapeKey} from './utils.js';
-import {SliderHeatEffect, SliderPhobosEffect, SliderMarvinEffect, SliderSepiaEffect, SliderChromeEffect, SliderDefaultEffect, ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD, ZoomControlButtonClass, HASHTAG_MASK} from './constant.js';
+import {isEscapeKey, showUploadMessage} from './utils.js';
+import {EffectClassName, EffectName, SliderHeatEffect, SliderPhobosEffect, SliderMarvinEffect, SliderSepiaEffect, SliderChromeEffect, SliderDefaultEffect, ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD, ZoomControlButtonClass, HASHTAG_MASK} from './constant.js';
+import {sendData} from './server-data-exchange.js';
 const uploadForm = document.querySelector('#upload-select-image');
 const scaleBlock = uploadForm.querySelector('.img-upload__scale');
 const imgPreviewPhoto = uploadForm.querySelector('.img-upload__preview img');
@@ -14,6 +15,9 @@ const sliderValueInput = uploadForm.querySelector('.effect-level__value');
 const slider = uploadForm.querySelector('.effect-level__slider');
 const sliderContainer = uploadForm.querySelector('.img-upload__effect-level');
 const effectNoneInput = uploadForm.querySelector('#effect-none');
+const submitButton = uploadForm.querySelector('.img-upload__submit');
+const successMessageTemplate = document.querySelector('#success').content.querySelector('.success');
+const errorMessageTemplate = document.querySelector('#error').content.querySelector('.error');
 const body = document.querySelector('body');
 
 //Подключаем Pristine
@@ -31,6 +35,42 @@ const cleanText = (text) => {
     text = text.replace('  ',' ');
   }
   return text;
+};
+
+//Блокируем кнопку отправить
+const blockSubmitButton = () => {
+  submitButton.disabled = true;
+  submitButton.textContent = 'Отправка...';
+};
+
+//Разблокируем кнопку отправить
+const unblockSubmitButton = () => {
+  submitButton.disabled = false;
+  submitButton.textContent = 'Отправить';
+};
+
+//Обработчик события нажатия на кнопку отправить
+const onSubmitForm = (evt) => {
+  evt.preventDefault();
+  const formData = new FormData(evt.target);
+  const isValid = formValidation.validate();
+  if (isValid) {
+    blockSubmitButton();
+    sendData(
+      () => {
+        closeForm();
+        unblockSubmitButton();
+        showUploadMessage('success', successMessageTemplate, body);
+      },
+      () => {
+        closeForm();
+        unblockSubmitButton();
+        showUploadMessage('error', errorMessageTemplate, body);
+
+      },
+      formData
+    );
+  }
 };
 
 //Получаем элемент массива хештегов и проверяем его регуляркой
@@ -83,9 +123,8 @@ const validateHashtags = () => {
   return validationResult;
 };
 
-
-//Управляем процентом увеличения картинки
-const controlScale = (evt) => {
+//Коллбек обработчика событий закрытия формы отправки кнопкой Escape
+const onZoomControlButtonClick = (evt) => {
   evt.preventDefault();
   let scale = Number(scaleValue.value.split('%')[0]);
   if (evt.target.matches(ZoomControlButtonClass.REDUCE)&& scale > ZoomRange.MIN) {
@@ -99,31 +138,18 @@ const controlScale = (evt) => {
   }
 };
 
-//Проверяем, что нажата кнопка Escape, и не в фокусе поле хештегов или описания
-function closeFormKeydown (evt) {
-  if (isEscapeKey(evt) && evt.target !== descriptionField && evt.target !== hashtagsField) {
-    closeForm(evt);
-  }
-}
-
-//Коллбек обработчика событий закрытия формы отправки кнопкой Escape
-const onZoomControlButtonClick = (evt) => {
-  controlScale(evt);
-};
-
 //Коллбек обработчика событий закрытия формы отправки кнопкой Escape
 const onFormEscKeydown = (evt) => {
-  closeFormKeydown(evt);
-};
-
-//Коллбек обработчика события отправки формы
-const formSubmitHandler = (evt) => {
-  submitForm(evt);
+  if (isEscapeKey(evt) && evt.target !== descriptionField && evt.target !== hashtagsField) {
+    evt.preventDefault();
+    closeForm();
+  }
 };
 
 //Коллбек обработчика событий закрытия формы
 const onCloseButtonClick = (evt) => {
-  closeForm(evt);
+  evt.preventDefault();
+  closeForm();
 };
 
 //Создаем слайдер
@@ -154,27 +180,27 @@ const createEffectSlider = () => {
   slider.noUiSlider.on('update', () => {
     sliderValueInput.value = slider.noUiSlider.get();
     switch (imgPreviewPhoto.className) {
-      case 'effects__preview--none':
+      case EffectClassName.NONE:
         imgPreviewPhoto.style.filter = 'none';
         sliderContainer.classList.add('hidden');
         break;
-      case 'effects__preview--chrome':
+      case EffectClassName.CHROME:
         imgPreviewPhoto.style.filter = `grayscale(${sliderValueInput.value})`;
         sliderContainer.classList.remove('hidden');
         break;
-      case 'effects__preview--sepia':
+      case EffectClassName.SEPIA:
         imgPreviewPhoto.style.filter = `sepia(${sliderValueInput.value})`;
         sliderContainer.classList.remove('hidden');
         break;
-      case 'effects__preview--marvin':
+      case EffectClassName.MARVIN:
         imgPreviewPhoto.style.filter = `invert(${sliderValueInput.value}%)`;
         sliderContainer.classList.remove('hidden');
         break;
-      case 'effects__preview--phobos':
+      case EffectClassName.PHOBOS:
         imgPreviewPhoto.style.filter = `blur(${sliderValueInput.value}px)`;
         sliderContainer.classList.remove('hidden');
         break;
-      case 'effects__preview--heat':
+      case EffectClassName.HEAT:
         imgPreviewPhoto.style.filter = `brightness(${sliderValueInput.value})`;
         sliderContainer.classList.remove('hidden');
     }
@@ -188,7 +214,7 @@ const onUpdateEffect = (evt) => {
     imgPreviewPhoto.classList.add(`effects__preview--${evt.target.value}`);
 
     switch (evt.target.value) {
-      case 'none':
+      case EffectName.NONE:
         imgPreviewPhoto.style.filter = 'none';
         slider.noUiSlider.updateOptions({
           range: {
@@ -209,7 +235,7 @@ const onUpdateEffect = (evt) => {
         });
         return true;
 
-      case 'chrome':
+      case EffectName.CHROME:
         slider.noUiSlider.updateOptions({
           range: {
             min: SliderChromeEffect.MIN,
@@ -230,7 +256,7 @@ const onUpdateEffect = (evt) => {
 
         return true;
 
-      case 'sepia':
+      case EffectName.SEPIA:
         slider.noUiSlider.updateOptions({
           range: {
             min: SliderSepiaEffect.MIN,
@@ -251,7 +277,7 @@ const onUpdateEffect = (evt) => {
 
         return true;
 
-      case 'marvin':
+      case EffectName.MARVIN:
         slider.noUiSlider.updateOptions({
           range: {
             min: SliderMarvinEffect.MIN,
@@ -272,7 +298,7 @@ const onUpdateEffect = (evt) => {
 
         return true;
 
-      case 'phobos':
+      case EffectName.PHOBOS:
         slider.noUiSlider.updateOptions({
           range: {
             min: SliderPhobosEffect.MIN,
@@ -293,7 +319,7 @@ const onUpdateEffect = (evt) => {
 
         return true;
 
-      case 'heat':
+      case EffectName.HEAT:
         slider.noUiSlider.updateOptions({
           range: {
             min: SliderHeatEffect.MIN,
@@ -318,8 +344,7 @@ const onUpdateEffect = (evt) => {
 };
 
 //Закрываем форму загрузки фотографий
-function closeForm (evt) {
-  evt.preventDefault();
+function closeForm () {
   uploadFormOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
   uploadFile.value = '';
@@ -332,7 +357,7 @@ function closeForm (evt) {
   sliderValueInput.value = '';
   effectNoneInput.checked = true;
   closeButton.removeEventListener('click', onCloseButtonClick);
-  uploadForm.removeEventListener('submit', formSubmitHandler);
+  uploadForm.removeEventListener('submit', onSubmitForm);
   document.removeEventListener('keydown', onFormEscKeydown);
   scaleBlock.removeEventListener('click', onZoomControlButtonClick);
   effectsList.removeEventListener('change', onUpdateEffect);
@@ -340,27 +365,12 @@ function closeForm (evt) {
   formValidation.reset();
 }
 
-// Отправляем форму и проводим валидацию
-function submitForm (evt) {
-  if(!formValidation.validate()) {
-    evt.preventDefault();
-    hashtagsField.value = '';
-  } else {
-    body.classList.remove('modal-open');
-    closeButton.removeEventListener('click', onCloseButtonClick);
-    uploadForm.removeEventListener('submit', formSubmitHandler);
-    document.removeEventListener('keydown', onFormEscKeydown);
-    scaleBlock.removeEventListener('click', onZoomControlButtonClick);
-    effectsList.removeEventListener('change', onUpdateEffect);
-    slider.noUiSlider.destroy();
-  }
-}
-
 //Открываем форму загрузки изображения
 const openUploadForm = () => {
   uploadFormOverlay.classList.remove('hidden');
   closeButton.addEventListener('click', onCloseButtonClick);
-  uploadForm.addEventListener('submit', formSubmitHandler);
+  uploadForm.addEventListener('submit', onSubmitForm);
+  //submitButton.addEventListener('click', onSubmitButtonClick);
   document.addEventListener('keydown', onFormEscKeydown);
   scaleBlock.addEventListener('click', onZoomControlButtonClick);
   body.classList.add('modal-open');
