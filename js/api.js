@@ -1,8 +1,8 @@
-import {SERVER_ADDRESS} from './constant.js';
+import {ServerAddress} from './constant.js';
 
 //Получаем данные с сервера
 const getData = (onSuccess, onFail) => {
-  fetch(SERVER_ADDRESS)
+  fetch(ServerAddress.GET)
     .then((response) => response.json())
     .then((photos) => {
       onSuccess(photos);
@@ -15,7 +15,7 @@ const getData = (onSuccess, onFail) => {
 //Отправляем данные на сервер
 const sendData = (onSuccess, onFail, body) => {
   fetch(
-    SERVER_ADDRESS,
+    ServerAddress.POST,
     {
       method: 'POST',
       body,

@@ -71,4 +71,13 @@ const showUploadMessage = (category, template, container) => {
   closeMessageButton.addEventListener('click', onCloseUploadMessageClick);
 };
 
-export {getRandomPositiveInteger, getRandomArrayElement, isEscapeKey, showDownloadMessage, showUploadMessage};
+const debounce = (cb, timeoutDelay) => {
+  let timeoutId;
+
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(cb, timeoutDelay, ...rest);
+  };
+};
+
+export {debounce, getRandomPositiveInteger, getRandomArrayElement, isEscapeKey, showDownloadMessage, showUploadMessage};

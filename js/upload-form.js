@@ -1,6 +1,7 @@
 import {isEscapeKey, showUploadMessage} from './utils.js';
-import {EffectClassName, EffectName, SliderHeatEffect, SliderPhobosEffect, SliderMarvinEffect, SliderSepiaEffect, SliderChromeEffect, SliderDefaultEffect, ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD, ZoomControlButtonClass, HASHTAG_MASK} from './constant.js';
-import {sendData} from './server-data-exchange.js';
+import {UploadStatusMessage, EffectClassName, EffectName, SliderHeatEffect, SliderPhobosEffect, SliderMarvinEffect, SliderSepiaEffect,
+  SliderChromeEffect, SliderDefaultEffect, ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD, ZoomControlButtonClass, HASHTAG_MASK} from './constant.js';
+import {sendData} from './api.js';
 const uploadForm = document.querySelector('#upload-select-image');
 const scaleBlock = uploadForm.querySelector('.img-upload__scale');
 const imgPreviewPhoto = uploadForm.querySelector('.img-upload__preview img');
@@ -54,24 +55,26 @@ const onSubmitForm = (evt) => {
   evt.preventDefault();
   const formData = new FormData(evt.target);
   const isValid = formValidation.validate();
-  if (isValid) {
-    blockSubmitButton();
-    sendData(
-      () => {
-        closeForm();
-        unblockSubmitButton();
-        showUploadMessage('success', successMessageTemplate, body);
-      },
-      () => {
-        closeForm();
-        unblockSubmitButton();
-        showUploadMessage('error', errorMessageTemplate, body);
-
-      },
-      formData
-    );
+  if (!isValid) {
+    return;
   }
+  blockSubmitButton();
+  sendData(
+    () => {
+      closeForm();
+      unblockSubmitButton();
+      showUploadMessage(UploadStatusMessage.SUCCES, successMessageTemplate, body);
+    },
+    () => {
+      closeForm();
+      unblockSubmitButton();
+      showUploadMessage(UploadStatusMessage.ERROR, errorMessageTemplate, body);
+
+    },
+    formData
+  );
 };
+
 
 //Получаем элемент массива хештегов и проверяем его регуляркой
 const validateHashtagByMask = (hashtagItem) => HASHTAG_MASK.test(hashtagItem);
@@ -370,7 +373,6 @@ const openUploadForm = () => {
   uploadFormOverlay.classList.remove('hidden');
   closeButton.addEventListener('click', onCloseButtonClick);
   uploadForm.addEventListener('submit', onSubmitForm);
-  //submitButton.addEventListener('click', onSubmitButtonClick);
   document.addEventListener('keydown', onFormEscKeydown);
   scaleBlock.addEventListener('click', onZoomControlButtonClick);
   body.classList.add('modal-open');
