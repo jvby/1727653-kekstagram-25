@@ -1,5 +1,5 @@
 import {isEscapeKey} from './utils.js';
-import {ONE_TIME_BIG_PICTURE_COMMENTS} from './constant.js';
+import {BIG_PICTURE_COMMENT_LIMIT, DEFAULT_COMMENT_NUMBER} from './constant.js';
 
 
 const bigPicture = document.querySelector('.big-picture');
@@ -14,7 +14,7 @@ const picturesContainer = document.querySelector('.pictures');
 const body = document.querySelector('body');
 const commentsNumberView = document.querySelector('.social__comment-count');
 const commentsLoaderButton = document.querySelector('.comments-loader');
-let commentsNumber = 0;
+let commentsNumber = DEFAULT_COMMENT_NUMBER;
 let photos = [];
 let comments = [];
 
@@ -33,11 +33,11 @@ const onBigPictureCancelClick = (evt) => {
 };
 
 //Отрисовываем один коментарий
-const showOneComment = (commentIndex) => {
+const showOneComment = (comment) => {
   const commentElement = commentTemplate.cloneNode(true);
-  commentElement.querySelector('img').src = comments[commentIndex].avatar;
-  commentElement.querySelector('img').alt = comments[commentIndex].name;
-  commentElement.querySelector('p').textContent = comments[commentIndex].message;
+  commentElement.querySelector('img').src = comment.avatar;
+  commentElement.querySelector('img').alt = comment.name;
+  commentElement.querySelector('p').textContent = comment.message;
   commentList.appendChild(commentElement);
   commentsNumber++;
 };
@@ -45,16 +45,16 @@ const showOneComment = (commentIndex) => {
 //Показываем коментарии к большой картинке
 const showMoreComments = () => {
   const startCommentIndex = commentsNumber - 1;
-  let numberCommentsToShow = ONE_TIME_BIG_PICTURE_COMMENTS;
+  let numberCommentsToShow = BIG_PICTURE_COMMENT_LIMIT;
   for (let i = startCommentIndex; numberCommentsToShow >= 1 ; i++) {
-    showOneComment(i);
+    showOneComment(comments[i]);
     numberCommentsToShow--;
     if (commentsNumber>= comments.length) {
       commentsLoaderButton.classList.add('hidden');
       break;
     }
   }
-  commentsNumberView.innerHTML = `${commentsNumber} из <span class="comments-count">${comments.length}</span> комментариев`;
+  commentsNumberView.textContent = `${commentsNumber} из ${comments.length} комментариев`;
 };
 
 
@@ -66,13 +66,13 @@ const addBigPictureAttributes = (photo) =>{
   description.textContent = photo.description;
   commentsCount.textContent = photo.comments.length;
   commentList.innerHTML = '';
-  commentsNumber = 0;
+  commentsNumber = DEFAULT_COMMENT_NUMBER;
   comments = photo.comments;
-  for (let i = 0; ONE_TIME_BIG_PICTURE_COMMENTS > commentsNumber ; i++) {
-    showOneComment(i);
+  for (let i = 0; BIG_PICTURE_COMMENT_LIMIT > commentsNumber ; i++) {
+    showOneComment(comments[i]);
   }
-  commentsNumberView.innerHTML = `${commentsNumber} из <span class="comments-count">${comments.length}</span> комментариев`;
-  if (comments.length > ONE_TIME_BIG_PICTURE_COMMENTS) {
+  commentsNumberView.textContent = `${commentsNumber} из ${comments.length} комментариев`;
+  if (comments.length > BIG_PICTURE_COMMENT_LIMIT) {
     commentsLoaderButton.classList.remove('hidden');
   }
 };

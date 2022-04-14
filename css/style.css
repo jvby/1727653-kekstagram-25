@@ -1423,3 +1423,26 @@ main {
 .img-upload__error-text {
   font-size: 9px;
 }
+
+/* Стили для сообщений об ошибке
+   ========================================================================== */
+
+.img-upload__error-text {
+  color: #fc4c4c;
+  text-transform: none;
+}
+
+.download-error-text {
+  z-index: 50;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+
+  padding: 10px;
+
+  font-size: 21px;
+  text-align: center;
+  text-transform: none;
+  background-color: #fc4c4c;
+}
