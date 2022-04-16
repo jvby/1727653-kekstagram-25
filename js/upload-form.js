@@ -1,10 +1,11 @@
 import {isEscapeKey, showUploadMessage} from './utils.js';
-import {UploadStatusMessage, EffectClassName, EffectName, SliderHeatEffect, SliderPhobosEffect, SliderMarvinEffect, SliderSepiaEffect,
+import {FILE_EXTENSION, UploadStatusMessage, EffectClassName, EffectName, SliderHeatEffect, SliderPhobosEffect, SliderMarvinEffect, SliderSepiaEffect,
   SliderChromeEffect, SliderDefaultEffect, ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD, ZoomControlButtonClass, HASHTAG_MASK} from './constant.js';
 import {sendData} from './api.js';
 const uploadForm = document.querySelector('#upload-select-image');
 const scaleBlock = uploadForm.querySelector('.img-upload__scale');
 const imgPreviewPhoto = uploadForm.querySelector('.img-upload__preview img');
+const uploadFileControl = uploadForm.querySelector('.img-upload__input');
 const scaleValue = uploadForm.querySelector('.scale__control--value');
 const uploadFormOverlay = uploadForm.querySelector('.img-upload__overlay');
 const closeButton = uploadForm.querySelector('#upload-cancel');
@@ -16,10 +17,27 @@ const sliderValueInput = uploadForm.querySelector('.effect-level__value');
 const slider = uploadForm.querySelector('.effect-level__slider');
 const sliderContainer = uploadForm.querySelector('.img-upload__effect-level');
 const effectNoneInput = uploadForm.querySelector('#effect-none');
+const effectPreviews = uploadForm.querySelectorAll('.effects__preview');
 const submitButton = uploadForm.querySelector('.img-upload__submit');
 const successMessageTemplate = document.querySelector('#success').content.querySelector('.success');
 const errorMessageTemplate = document.querySelector('#error').content.querySelector('.error');
 const body = document.querySelector('body');
+
+//Показываем предпросмотр выбранного изображения
+const showPhotoPreview = () => {
+  const file = uploadFileControl.files[0];
+  const fileName = file.name.toLowerCase();
+
+  const isFiletypeMatches = FILE_EXTENSION.some((value) => fileName.endsWith(value));
+
+  if (!isFiletypeMatches) {
+    return;
+  }
+  imgPreviewPhoto.src = URL.createObjectURL(file);
+  effectPreviews.forEach((element) => {
+    element.style.backgroundImage = `url(${imgPreviewPhoto.src})`;
+  });
+};
 
 //Подключаем Pristine
 const formValidation = new Pristine(uploadForm, {
@@ -350,6 +368,7 @@ const onUpdateEffect = (evt) => {
 function closeForm () {
   uploadFormOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
+  imgPreviewPhoto.src = '';
   uploadFile.value = '';
   descriptionField.value = '';
   hashtagsField.value = '';
@@ -369,7 +388,8 @@ function closeForm () {
 }
 
 //Открываем форму загрузки изображения
-const formUploadChangeHandler = () => {
+const onUploadFormChange = () => {
+  showPhotoPreview();
   uploadFormOverlay.classList.remove('hidden');
   closeButton.addEventListener('click', onCloseButtonClick);
   uploadForm.addEventListener('submit', onSubmitForm);
@@ -385,4 +405,4 @@ const formUploadChangeHandler = () => {
   }
 };
 
-export {formUploadChangeHandler};
+export {onUploadFormChange};
