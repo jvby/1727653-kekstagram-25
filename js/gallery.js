@@ -1,6 +1,6 @@
 import { showBigPicture } from './big-picture-modal.js';
 import { getRandomPositiveInteger, debounce } from './utils.js';
-import { RENDER_DELAY } from './constant.js';
+import { NUMBER_RANDOM_PHOTOS, RENDER_DELAY } from './constant.js';
 
 const picturesList = document.querySelector('.pictures');
 const picturesListFragment = document.createDocumentFragment();
@@ -10,7 +10,7 @@ const previewFilterButtons = document.querySelectorAll('.img-filters__button');
 const defaultPreviewFilter = document.querySelector('#filter-default');
 const randomPreviewFilter = document.querySelector('#filter-random');
 const discussedPreviewFilter = document.querySelector('#filter-discussed');
-let photosFromServer = [];
+let galleries = [];
 let photos = [];
 
 //Обрабатываем событие и ловим id, по нему ищем фотку и вызываем функцию открытия большого окна
@@ -22,79 +22,84 @@ const onGalleryPictureClick = (evt) =>{
   showBigPicture(photos[photos.findIndex((photo) => photo.id === Number(evt.target.id))]);
 };
 
+//Добавляем аттрибуты каждой фотографии галереи
+const addPictureAttributes = (id, url, description, likes, comments) => {
+  const picture = pictureTemplate.cloneNode(true);
+  picture.querySelector('.picture__img').id = id;
+  picture.querySelector('.picture__img').src = url;
+  picture.querySelector('.picture__img').alt = description;
+  picture.querySelector('.picture__likes').textContent = likes;
+  picture.querySelector('.picture__comments').textContent = comments.length;
+  return picture;
+};
+
 //Создаем галерею и навешиваем обработчик через делегирование на открытиебольшой картинки
 const createGallery = (pictures) => {
-  photosFromServer = pictures.slice();
+  galleries = pictures.slice();
   photos = pictures.slice();
   pictures.forEach(({id, url, description, likes, comments}) => {
-    const pictureElement = pictureTemplate.cloneNode(true);
-    pictureElement.querySelector('.picture__img').id = id;
-    pictureElement.querySelector('.picture__img').src = url;
-    pictureElement.querySelector('.picture__img').alt = description;
-    pictureElement.querySelector('.picture__likes').textContent = likes;
-    pictureElement.querySelector('.picture__comments').textContent = comments.length;
+    const pictureElement = addPictureAttributes(id, url, description, likes, comments);
     picturesListFragment.appendChild(pictureElement);
   });
   picturesList.appendChild(picturesListFragment);
   picturesList.addEventListener('click', onGalleryPictureClick);
 };
 
-//Создаем фильтрованную галерею и навешиваем обработчик через делегирование на открытиебольшой картинки
+//Создаем фильтрованную галерею
 const createFilteredGallery = (pictures) => {
   pictures.forEach(({id, url, description, likes, comments}) => {
-    const pictureElement = pictureTemplate.cloneNode(true);
-    pictureElement.querySelector('.picture__img').id = id;
-    pictureElement.querySelector('.picture__img').src = url;
-    pictureElement.querySelector('.picture__img').alt = description;
-    pictureElement.querySelector('.picture__likes').textContent = likes;
-    pictureElement.querySelector('.picture__comments').textContent = comments.length;
+    const pictureElement = addPictureAttributes(id, url, description, likes, comments);
     picturesListFragment.appendChild(pictureElement);
   });
   picturesList.appendChild(picturesListFragment);
 };
 
-//Показываем фотки с сервера в исходном виде
-const showDefaultPreviews = (evt) => {
-  evt.preventDefault();
-  const defaultList = photosFromServer.slice();
-  const oldPreviews = document.querySelectorAll('a.picture');
+//Удаляем картинки из галереи перед показом фильтрованных картинок
+const removeAllPictures = () => {
+  const picture = document.querySelectorAll('a.picture');
+  picture.forEach((element) => element.remove());
+};
 
-  oldPreviews.forEach((element) => element.remove());
+//Показываем фотки с сервера в исходном виде
+const onDefaultFilterButtonClick = (evt) => {
+  evt.preventDefault();
+  const pictures = galleries.slice();
+
+  removeAllPictures();
 
   previewFilterButtons.forEach((element) => element.classList.remove('img-filters__button--active'));
   evt.target.classList.add('img-filters__button--active');
-  photos = defaultList.slice();
+  photos = pictures.slice();
 
-  createFilteredGallery(defaultList);
+  createFilteredGallery(pictures);
 };
 
 //Показываем 10 случайных
-const showRandomPreviews = (evt) => {
+const onRandomPreviewFilterButtonClick = (evt) => {
   evt.preventDefault();
-  const rareList = photosFromServer.slice();
-  const randomList = [];
+  const pictures = galleries.slice();
+  const random = [];
 
-  for (let i = 0; i < 10; i++) {
-    const index = getRandomPositiveInteger(0, rareList.length - 1);
-    randomList[i] = rareList[index];
-    rareList.splice(index, 1);
+  for (let i = 0; i < NUMBER_RANDOM_PHOTOS; i++) {
+    const index = getRandomPositiveInteger(0, pictures.length - 1);
+    random[i] = pictures[index];
+    pictures.splice(index, 1);
   }
 
-  const oldPreviews = document.querySelectorAll('a.picture');
-  oldPreviews.forEach((element) => element.remove());
+  removeAllPictures();
 
   previewFilterButtons.forEach((element) => element.classList.remove('img-filters__button--active'));
   evt.target.classList.add('img-filters__button--active');
-  photos = randomList.slice();
+  photos = random.slice();
 
-  createFilteredGallery(randomList);
+  createFilteredGallery(random);
 };
 
 //Показываем самые обсуждаемые фотографии
-const showDiscussedPreviews = (evt) => {
+const onDiscussedPreviewsButtonClick = (evt) => {
   evt.preventDefault();
-  const discussedList = photosFromServer.slice();
-  discussedList.sort((a, b) => {
+  const pictures = galleries.slice();
+  pictures.sort((a, b) => {
     if (a.comments > b.comments) {
       return -1;
     }
@@ -105,32 +110,31 @@ const showDiscussedPreviews = (evt) => {
     return 0;
   });
 
-  const oldPreviews = document.querySelectorAll('a.picture');
-  oldPreviews.forEach( (element) => element.remove() );
+  removeAllPictures();
 
   previewFilterButtons.forEach((element) => element.classList.remove('img-filters__button--active'));
   evt.target.classList.add('img-filters__button--active');
-  photos = discussedList.slice();
+  photos = pictures.slice();
 
-  createFilteredGallery(discussedList);
+  createFilteredGallery(pictures);
 };
 
 //Активируем фильтры
-const showFilters = () => {
+const addFiltersListeners = () => {
   previewFilterElement.classList.remove('img-filters--inactive');
 
   defaultPreviewFilter.addEventListener('click', debounce(
-    showDefaultPreviews,
+    onDefaultFilterButtonClick,
     RENDER_DELAY,
   ));
   randomPreviewFilter.addEventListener('click', debounce(
-    showRandomPreviews,
+    onRandomPreviewFilterButtonClick,
     RENDER_DELAY,
   ));
   discussedPreviewFilter.addEventListener('click', debounce(
-    showDiscussedPreviews,
+    onDiscussedPreviewsButtonClick,
     RENDER_DELAY,
   ));
 };
 
-export {createGallery, showFilters};
+export {createGallery, addFiltersListeners};

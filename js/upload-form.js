@@ -63,7 +63,7 @@ const onSubmitForm = (evt) => {
     () => {
       closeForm();
       unblockSubmitButton();
-      showUploadMessage(UploadStatusMessage.SUCCES, successMessageTemplate, body);
+      showUploadMessage(UploadStatusMessage.SUCCESS, successMessageTemplate, body);
     },
     () => {
       closeForm();
@@ -369,7 +369,7 @@ function closeForm () {
 }
 
 //Открываем форму загрузки изображения
-const openUploadForm = () => {
+const formUploadChangeHandler = () => {
   uploadFormOverlay.classList.remove('hidden');
   closeButton.addEventListener('click', onCloseButtonClick);
   uploadForm.addEventListener('submit', onSubmitForm);
@@ -385,4 +385,4 @@ const openUploadForm = () => {
   }
 };
 
-export {openUploadForm};
+export {formUploadChangeHandler};

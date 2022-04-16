@@ -1,6 +1,6 @@
 import {ErrorMessage} from './constant.js';
-import {createGallery, showFilters} from './gallery.js';
-import {openUploadForm} from './upload-form.js';
+import {createGallery, addFiltersListeners} from './gallery.js';
+import {formUploadChangeHandler} from './upload-form.js';
 import {getData} from './api.js';
 import {showDownloadMessage} from './utils.js';
 
@@ -13,6 +13,6 @@ getData(
   }
 );
 
-showFilters();
+addFiltersListeners();
 
-document.querySelector('#upload-file').addEventListener('change', openUploadForm);
+document.querySelector('#upload-file').addEventListener('change', formUploadChangeHandler);

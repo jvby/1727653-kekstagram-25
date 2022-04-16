@@ -22,9 +22,10 @@ const DEFAULT_COMMENT_NUMBER = 0;
 const BIG_PICTURE_COMMENT_LIMIT = 5;
 const MESSAGE_SHOW_TIME = 5000;
 const ServerAddress = { GET: 'https://25.javascript.pages.academy/kekstagram/data', POST: 'https://25.javascript.pages.academy/kekstagram' };
-const UploadStatusMessage = { ERROR: 'error', SUCCES: 'succes' };
+const UploadStatusMessage = { ERROR: 'error', SUCCESS: 'success' };
 const RENDER_DELAY = 500;
+const NUMBER_RANDOM_PHOTOS = 10;
 
-export {RENDER_DELAY, UploadStatusMessage, EffectClassName, EffectName, DEFAULT_COMMENT_NUMBER, ServerAddress, MESSAGE_SHOW_TIME, SliderHeatEffect, SliderPhobosEffect,
+export {NUMBER_RANDOM_PHOTOS, RENDER_DELAY, UploadStatusMessage, EffectClassName, EffectName, DEFAULT_COMMENT_NUMBER, ServerAddress, MESSAGE_SHOW_TIME, SliderHeatEffect, SliderPhobosEffect,
   SliderMarvinEffect, SliderSepiaEffect, SliderChromeEffect, SliderDefaultEffect, BIG_PICTURE_COMMENT_LIMIT, HASHTAG_MASK, ZoomControlButtonClass,
   PHOTO_COUNT, START_ID, ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD};

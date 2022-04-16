@@ -61,10 +61,10 @@ const onCloseUploadMessageClick = (evt)=> {
 const showUploadMessage = (category, template, container) => {
   const uploadFragment = document.createDocumentFragment();
   const uploadElement = template.cloneNode(true);
-  const closeMessageButton = uploadElement.querySelector(`.${category}__button`);
 
   uploadFragment.appendChild(uploadElement);
   container.appendChild(uploadFragment);
+  const closeMessageButton = uploadElement.querySelector(`.${category}__button`);
 
   document.addEventListener('keydown', onCloseMessageByKeydown);
   document.addEventListener('click', onCloseMessageByClick);

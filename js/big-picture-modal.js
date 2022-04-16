@@ -65,8 +65,12 @@ const addBigPictureAttributes = (photo) =>{
   commentList.innerHTML = '';
   commentsNumber = DEFAULT_COMMENT_NUMBER;
   comments = [];
-  comments = photo.comments;
+  comments = photo.comments.slice();
   for (let i = 0; BIG_PICTURE_COMMENT_LIMIT > commentsNumber ; i++) {
+    if (i >= comments.length) {
+      commentsLoaderButton.classList.add('hidden');
+      break;
+    }
     showOneComment(comments[i]);
   }
   commentsNumberView.textContent = `${commentsNumber} из ${comments.length} комментариев`;

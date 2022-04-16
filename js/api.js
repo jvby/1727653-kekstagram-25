@@ -3,7 +3,12 @@ import {ServerAddress} from './constant.js';
 //Получаем данные с сервера
 const getData = (onSuccess, onFail) => {
   fetch(ServerAddress.GET)
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not OK');
+      }
+      return response.json();
+    })
     .then((photos) => {
       onSuccess(photos);
     })
@@ -21,9 +26,11 @@ const sendData = (onSuccess, onFail, body) => {
       body,
     },
   )
-    .then(() => onSuccess())
-    .catch(() => {
-      onFail();
+    .then((response) => {
+      if (!response.ok) {
+        onFail();
+      }
+      onSuccess();
     });
 };
 
