@@ -61,14 +61,23 @@ const onCloseUploadMessageClick = (evt)=> {
 const showUploadMessage = (category, template, container) => {
   const uploadFragment = document.createDocumentFragment();
   const uploadElement = template.cloneNode(true);
-  const closeMessageButton = uploadElement.querySelector(`.${category}__button`);
 
   uploadFragment.appendChild(uploadElement);
   container.appendChild(uploadFragment);
+  const closeMessageButton = uploadElement.querySelector(`.${category}__button`);
 
   document.addEventListener('keydown', onCloseMessageByKeydown);
   document.addEventListener('click', onCloseMessageByClick);
   closeMessageButton.addEventListener('click', onCloseUploadMessageClick);
 };
 
-export {getRandomPositiveInteger, getRandomArrayElement, isEscapeKey, showDownloadMessage, showUploadMessage};
+const debounce = (cb, timeoutDelay) => {
+  let timeoutId;
+
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(cb, timeoutDelay, ...rest);
+  };
+};
+
+export {debounce, getRandomPositiveInteger, getRandomArrayElement, isEscapeKey, showDownloadMessage, showUploadMessage};

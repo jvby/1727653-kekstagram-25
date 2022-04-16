@@ -1,9 +1,14 @@
-import {SERVER_ADDRESS} from './constant.js';
+import {ServerAddress} from './constant.js';
 
 //Получаем данные с сервера
 const getData = (onSuccess, onFail) => {
-  fetch(SERVER_ADDRESS)
-    .then((response) => response.json())
+  fetch(ServerAddress.GET)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not OK');
+      }
+      return response.json();
+    })
     .then((photos) => {
       onSuccess(photos);
     })
@@ -15,15 +20,17 @@ const getData = (onSuccess, onFail) => {
 //Отправляем данные на сервер
 const sendData = (onSuccess, onFail, body) => {
   fetch(
-    SERVER_ADDRESS,
+    ServerAddress.POST,
     {
       method: 'POST',
       body,
     },
   )
-    .then(() => onSuccess())
-    .catch(() => {
-      onFail();
+    .then((response) => {
+      if (!response.ok) {
+        onFail();
+      }
+      onSuccess();
     });
 };
 

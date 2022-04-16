@@ -1,7 +1,6 @@
 import {isEscapeKey} from './utils.js';
 import {BIG_PICTURE_COMMENT_LIMIT, DEFAULT_COMMENT_NUMBER} from './constant.js';
 
-
 const bigPicture = document.querySelector('.big-picture');
 const bigPictureCancel = bigPicture.querySelector('.big-picture__cancel');
 const imgBigPicture = bigPicture.querySelector('.big-picture__img img');
@@ -10,12 +9,10 @@ const commentsCount = bigPicture.querySelector('.comments-count');
 const commentList = bigPicture.querySelector('.social__comments');
 const description = bigPicture.querySelector('.social__caption');
 const commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
-const picturesContainer = document.querySelector('.pictures');
 const body = document.querySelector('body');
 const commentsNumberView = document.querySelector('.social__comment-count');
 const commentsLoaderButton = document.querySelector('.comments-loader');
 let commentsNumber = DEFAULT_COMMENT_NUMBER;
-let photos = [];
 let comments = [];
 
 //Проверяем, что нажали Escape для закрытия окна, и вызываем функцию закрытия окна
@@ -67,8 +64,13 @@ const addBigPictureAttributes = (photo) =>{
   commentsCount.textContent = photo.comments.length;
   commentList.innerHTML = '';
   commentsNumber = DEFAULT_COMMENT_NUMBER;
-  comments = photo.comments;
+  comments = [];
+  comments = photo.comments.slice();
   for (let i = 0; BIG_PICTURE_COMMENT_LIMIT > commentsNumber ; i++) {
+    if (i >= comments.length) {
+      commentsLoaderButton.classList.add('hidden');
+      break;
+    }
     showOneComment(comments[i]);
   }
   commentsNumberView.textContent = `${commentsNumber} из ${comments.length} комментариев`;
@@ -84,27 +86,13 @@ const onAddCoommentsButtonClick = (evt) => {
 };
 
 //Функция обработчика событий по реакции на нажатие на картинку в галерее
-const onGalleryPictureClick = (evt) =>{
-  if (!evt.target.matches('.picture__img')) {
-    return;
-  }
-  evt.preventDefault();
-  const id = evt.target.id;
-  const index = id - 1;
-  addBigPictureAttributes(photos[index]);
+const showBigPicture = (photo) =>{
+  addBigPictureAttributes(photo);
   bigPicture.classList.remove('hidden');
   bigPictureCancel.addEventListener('click',  onBigPictureCancelClick);
   document.addEventListener('keydown', onBigPictureEscKeydown);
   commentsLoaderButton.addEventListener('click',  onAddCoommentsButtonClick);
   body.classList.add('modal-open');
-};
-
-// Добавляем обработчик событий на галерею для открытия большой картинки
-const openBigPicture = (pictures) => {
-  photos = [];
-  comments = [];
-  photos = pictures;
-  picturesContainer.addEventListener('click', onGalleryPictureClick);
 };
 
 //Закрываем большое окно
@@ -117,4 +105,4 @@ function closeBigPicture () {
   body.classList.remove('modal-open');
 }
 
-export {openBigPicture};
+export {showBigPicture};
