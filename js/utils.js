@@ -7,11 +7,6 @@ const getRandomPositiveInteger = (a, b) => {
   return Math.floor(Math.random() * (upper - lower + 1)) + lower;
 };
 
-const getRandomArrayElement = (elements) => {
-  const element = elements[getRandomPositiveInteger(0, elements.length - 1)];
-  return element;
-};
-
 const isEscapeKey = (evt) =>  evt.key === 'Escape';
 
 //Показывает сообщение об ошибке загрузки данных с удаленного сервера.
@@ -80,4 +75,4 @@ const debounce = (cb, timeoutDelay) => {
   };
 };
 
-export {debounce, getRandomPositiveInteger, getRandomArrayElement, isEscapeKey, showDownloadMessage, showUploadMessage};
+export {debounce, getRandomPositiveInteger, isEscapeKey, showDownloadMessage, showUploadMessage};

@@ -1,5 +1,5 @@
 import {isEscapeKey, showUploadMessage} from './utils.js';
-import {FILE_EXTENSION, UploadStatusMessage, EffectClassName, EffectName, SliderHeatEffect, SliderPhobosEffect, SliderMarvinEffect, SliderSepiaEffect,
+import {FILE_EXTENSIONS, UploadStatusMessage, EffectClassName, EffectName, SliderHeatEffect, SliderPhobosEffect, SliderMarvinEffect, SliderSepiaEffect,
   SliderChromeEffect, SliderDefaultEffect, ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD, ZoomControlButtonClass, HASHTAG_MASK} from './constant.js';
 import {sendData} from './api.js';
 const uploadForm = document.querySelector('#upload-select-image');
@@ -28,7 +28,7 @@ const showPhotoPreview = () => {
   const file = uploadFileControl.files[0];
   const fileName = file.name.toLowerCase();
 
-  const isFiletypeMatches = FILE_EXTENSION.some((value) => fileName.endsWith(value));
+  const isFiletypeMatches = FILE_EXTENSIONS.some((value) => fileName.endsWith(value));
 
   if (!isFiletypeMatches) {
     return;
@@ -202,7 +202,7 @@ const createEffectSlider = () => {
     sliderValueInput.value = slider.noUiSlider.get();
     switch (imgPreviewPhoto.className) {
       case EffectClassName.NONE:
-        imgPreviewPhoto.style.filter = 'none';
+        imgPreviewPhoto.style.filter = EffectClassName.NONE;
         sliderContainer.classList.add('hidden');
         break;
       case EffectClassName.CHROME:
@@ -236,7 +236,7 @@ const onUpdateEffect = (evt) => {
 
     switch (evt.target.value) {
       case EffectName.NONE:
-        imgPreviewPhoto.style.filter = 'none';
+        imgPreviewPhoto.style.filter = EffectClassName.NONE;
         slider.noUiSlider.updateOptions({
           range: {
             min: SliderDefaultEffect.MIN,
@@ -375,7 +375,7 @@ function closeForm () {
   scaleValue.value = `${ZoomRange.DEFAULT}%`;
   imgPreviewPhoto.className = '';
   imgPreviewPhoto.style.transform = `scale(${ZoomRange.DEFAULT/100})`;
-  imgPreviewPhoto.style.filter = 'none';
+  imgPreviewPhoto.style.filter = EffectClassName.NONE;
   sliderValueInput.value = '';
   effectNoneInput.checked = true;
   closeButton.removeEventListener('click', onCloseButtonClick);
