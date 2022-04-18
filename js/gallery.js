@@ -1,6 +1,6 @@
 import { showBigPicture } from './big-picture-modal.js';
 import { getRandomPositiveInteger, debounce } from './utils.js';
-import { NUMBER_RANDOM_PHOTOS, RENDER_DELAY } from './constant.js';
+import { RANDOM_PHOTOS_COUNT, RENDER_DELAY } from './constant.js';
 
 const picturesList = document.querySelector('.pictures');
 const picturesListFragment = document.createDocumentFragment();
@@ -9,9 +9,9 @@ const previewFilterElement = document.querySelector('.img-filters');
 const previewFilterButtons = document.querySelectorAll('.img-filters__button');
 const defaultPreviewFilter = document.querySelector('#filter-default');
 const randomPreviewFilter = document.querySelector('#filter-random');
-const discussedPreviewFilter = document.querySelector('#filter-discussed');
-let galleries = [];
-let photos = [];
+const commentsPreviewFilter = document.querySelector('#filter-discussed');
+let serverPhotos = []; //массив фоток с сервера
+let photos = []; //рабочий массив фоток
 
 //Обрабатываем событие и ловим id, по нему ищем фотку и вызываем функцию открытия большого окна
 const onGalleryPictureClick = (evt) =>{
@@ -19,11 +19,13 @@ const onGalleryPictureClick = (evt) =>{
     return;
   }
   evt.preventDefault();
-  showBigPicture(photos[photos.findIndex((photo) => photo.id === Number(evt.target.id))]);
+  showBigPicture(photos[photos.findIndex(
+    (photo) =>
+      photo.id === Number(evt.target.id))]);
 };
 
-//Добавляем аттрибуты каждой фотографии галереи
-const addPictureAttributes = (id, url, description, likes, comments) => {
+//Создаем и изменяем параметры HTML фотографии
+const createPictureElement = (id, url, description, likes, comments) => {
   const picture = pictureTemplate.cloneNode(true);
   picture.querySelector('.picture__img').id = id;
   picture.querySelector('.picture__img').src = url;
@@ -35,10 +37,10 @@ const addPictureAttributes = (id, url, description, likes, comments) => {
 
 //Создаем галерею и навешиваем обработчик через делегирование на открытиебольшой картинки
 const createGallery = (pictures) => {
-  galleries = pictures.slice();
+  serverPhotos = pictures.slice();
   photos = pictures.slice();
   pictures.forEach(({id, url, description, likes, comments}) => {
-    const pictureElement = addPictureAttributes(id, url, description, likes, comments);
+    const pictureElement = createPictureElement(id, url, description, likes, comments);
     picturesListFragment.appendChild(pictureElement);
   });
   picturesList.appendChild(picturesListFragment);
@@ -48,7 +50,7 @@ const createGallery = (pictures) => {
 //Создаем фильтрованную галерею
 const createFilteredGallery = (pictures) => {
   pictures.forEach(({id, url, description, likes, comments}) => {
-    const pictureElement = addPictureAttributes(id, url, description, likes, comments);
+    const pictureElement = createPictureElement(id, url, description, likes, comments);
     picturesListFragment.appendChild(pictureElement);
   });
   picturesList.appendChild(picturesListFragment);
@@ -63,7 +65,7 @@ const removeAllPictures = () => {
 //Показываем фотки с сервера в исходном виде
 const onDefaultFilterButtonClick = (evt) => {
   evt.preventDefault();
-  const pictures = galleries.slice();
+  const pictures = serverPhotos.slice();
 
   removeAllPictures();
 
@@ -77,12 +79,12 @@ const onDefaultFilterButtonClick = (evt) => {
 //Показываем 10 случайных
 const onRandomPreviewFilterButtonClick = (evt) => {
   evt.preventDefault();
-  const pictures = galleries.slice();
-  const random = [];
+  const pictures = serverPhotos.slice();
+  const randomPhotos = [];
 
-  for (let i = 0; i < NUMBER_RANDOM_PHOTOS; i++) {
+  for (let i = 0; i < RANDOM_PHOTOS_COUNT; i++) {
     const index = getRandomPositiveInteger(0, pictures.length - 1);
-    random[i] = pictures[index];
+    randomPhotos[i] = pictures[index];
     pictures.splice(index, 1);
   }
 
@@ -90,15 +92,15 @@ const onRandomPreviewFilterButtonClick = (evt) => {
 
   previewFilterButtons.forEach((element) => element.classList.remove('img-filters__button--active'));
   evt.target.classList.add('img-filters__button--active');
-  photos = random.slice();
+  photos = randomPhotos.slice();
 
-  createFilteredGallery(random);
+  createFilteredGallery(randomPhotos);
 };
 
 //Показываем самые обсуждаемые фотографии
-const onDiscussedPreviewsButtonClick = (evt) => {
+const onCommentsPreviewsButtonClick = (evt) => {
   evt.preventDefault();
-  const pictures = galleries.slice();
+  const pictures = serverPhotos.slice();
   pictures.sort((a, b) => {
     if (a.comments > b.comments) {
       return -1;
@@ -131,8 +133,8 @@ const addFiltersListeners = () => {
     onRandomPreviewFilterButtonClick,
     RENDER_DELAY,
   ));
-  discussedPreviewFilter.addEventListener('click', debounce(
-    onDiscussedPreviewsButtonClick,
+  commentsPreviewFilter.addEventListener('click', debounce(
+    onCommentsPreviewsButtonClick,
     RENDER_DELAY,
   ));
 };

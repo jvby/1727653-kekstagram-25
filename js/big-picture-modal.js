@@ -6,7 +6,7 @@ const bigPictureCancel = bigPicture.querySelector('.big-picture__cancel');
 const imgBigPicture = bigPicture.querySelector('.big-picture__img img');
 const likesCount = bigPicture.querySelector('.likes-count');
 const commentsCount = bigPicture.querySelector('.comments-count');
-const commentList = bigPicture.querySelector('.social__comments');
+const commentsList = bigPicture.querySelector('.social__comments');
 const description = bigPicture.querySelector('.social__caption');
 const commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 const body = document.querySelector('body');
@@ -35,7 +35,7 @@ const showOneComment = (comment) => {
   commentElement.querySelector('img').src = comment.avatar;
   commentElement.querySelector('img').alt = comment.name;
   commentElement.querySelector('p').textContent = comment.message;
-  commentList.appendChild(commentElement);
+  commentsList.appendChild(commentElement);
   commentsNumber++;
 };
 
@@ -56,13 +56,13 @@ const showMoreComments = () => {
 
 
 //Добавляем атрибуты для окна с большой картинкой
-const addBigPictureAttributes = (photo) =>{
+const changeBigPictureAttributes = (photo) =>{
   imgBigPicture.src = photo.url;
   imgBigPicture.alt = photo.description;
   likesCount.textContent = photo.likes;
   description.textContent = photo.description;
   commentsCount.textContent = photo.comments.length;
-  commentList.innerHTML = '';
+  commentsList.innerHTML = '';
   commentsNumber = DEFAULT_COMMENT_NUMBER;
   comments = [];
   comments = photo.comments.slice();
@@ -87,7 +87,7 @@ const onAddCoommentsButtonClick = (evt) => {
 
 //Функция обработчика событий по реакции на нажатие на картинку в галерее
 const showBigPicture = (photo) =>{
-  addBigPictureAttributes(photo);
+  changeBigPictureAttributes(photo);
   bigPicture.classList.remove('hidden');
   bigPictureCancel.addEventListener('click',  onBigPictureCancelClick);
   document.addEventListener('keydown', onBigPictureEscKeydown);

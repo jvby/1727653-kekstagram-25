@@ -1,5 +1,3 @@
-const PHOTO_COUNT = 25;
-const START_ID = 0;
 const ErrorMessage = { HASHTAG_VALIDATION: 'ХешТег введен неверно', DESCRIPTION_LENGTH: 'Максимальная длина 140 символов',
   UPLOAD_ERROR: 'Не удалось получить данные. Попробуйте ещё раз' };
 
@@ -24,8 +22,9 @@ const MESSAGE_SHOW_TIME = 5000;
 const ServerAddress = { GET: 'https://25.javascript.pages.academy/kekstagram/data', POST: 'https://25.javascript.pages.academy/kekstagram' };
 const UploadStatusMessage = { ERROR: 'error', SUCCESS: 'success' };
 const RENDER_DELAY = 500;
-const NUMBER_RANDOM_PHOTOS = 10;
+const RANDOM_PHOTOS_COUNT = 10;
+const FILE_EXTENSIONS = ['jpg', 'jpeg', 'png'];
 
-export {NUMBER_RANDOM_PHOTOS, RENDER_DELAY, UploadStatusMessage, EffectClassName, EffectName, DEFAULT_COMMENT_NUMBER, ServerAddress, MESSAGE_SHOW_TIME, SliderHeatEffect, SliderPhobosEffect,
+export {FILE_EXTENSIONS, RANDOM_PHOTOS_COUNT, RENDER_DELAY, UploadStatusMessage, EffectClassName, EffectName, DEFAULT_COMMENT_NUMBER, ServerAddress, MESSAGE_SHOW_TIME, SliderHeatEffect, SliderPhobosEffect,
   SliderMarvinEffect, SliderSepiaEffect, SliderChromeEffect, SliderDefaultEffect, BIG_PICTURE_COMMENT_LIMIT, HASHTAG_MASK, ZoomControlButtonClass,
-  PHOTO_COUNT, START_ID, ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD};
+  ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD};
