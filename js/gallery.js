@@ -1,6 +1,6 @@
 import { showBigPicture } from './big-picture-modal.js';
 import { getRandomPositiveInteger, debounce } from './utils.js';
-import { RANDOM_PHOTOS_COUNT, RENDER_DELAY } from './constant.js';
+import { RANDOM_PHOTOS_COUNT, RENDER_DELAY, ACTIVE_FILTER_BUTTON_CLASS } from './constant.js';
 
 const picturesList = document.querySelector('.pictures');
 const picturesListFragment = document.createDocumentFragment();
@@ -45,8 +45,19 @@ const createFilteredGallery = (pictures) => {
 
 //Удаляем картинки из галереи перед показом фильтрованных картинок
 const removeAllPictures = () => {
-  const picture = document.querySelectorAll('a.picture');
-  picture.forEach((element) => element.remove());
+  const pictures = document.querySelectorAll('a.picture');
+  pictures.forEach((element) => element.remove());
+};
+
+//Обновляем статус кнопок фильтров
+const updateFilterButtonStatus = (evt) =>{
+  previewFilterButtons.forEach((element) => element.classList.remove(ACTIVE_FILTER_BUTTON_CLASS));
+  evt.target.classList.add(ACTIVE_FILTER_BUTTON_CLASS);
+};
+
+//Обновляем массив фоток галереи
+const updatePhotosList = (pictures) => {
+  photos = pictures.slice();
 };
 
 //Показываем фотки с сервера в исходном виде
@@ -56,9 +67,9 @@ const onDefaultFilterButtonClick = (evt) => {
 
   removeAllPictures();
 
-  previewFilterButtons.forEach((element) => element.classList.remove('img-filters__button--active'));
-  evt.target.classList.add('img-filters__button--active');
-  photos = pictures.slice();
+  updateFilterButtonStatus(evt);
+
+  updatePhotosList(pictures);
 
   createFilteredGallery(pictures);
 };
@@ -77,9 +88,9 @@ const onRandomPreviewFilterButtonClick = (evt) => {
 
   removeAllPictures();
 
-  previewFilterButtons.forEach((element) => element.classList.remove('img-filters__button--active'));
-  evt.target.classList.add('img-filters__button--active');
-  photos = randomPhotos.slice();
+  updateFilterButtonStatus(evt);
+
+  updatePhotosList(randomPhotos);
 
   createFilteredGallery(randomPhotos);
 };
@@ -101,9 +112,9 @@ const onCommentsPreviewsButtonClick = (evt) => {
 
   removeAllPictures();
 
-  previewFilterButtons.forEach((element) => element.classList.remove('img-filters__button--active'));
-  evt.target.classList.add('img-filters__button--active');
-  photos = pictures.slice();
+  updateFilterButtonStatus(evt);
+
+  updatePhotosList(pictures);
 
   createFilteredGallery(pictures);
 };
