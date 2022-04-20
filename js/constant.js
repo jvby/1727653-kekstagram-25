@@ -25,6 +25,7 @@ const RENDER_DELAY = 500;
 const RANDOM_PHOTOS_COUNT = 10;
 const FILE_EXTENSIONS = ['jpg', 'jpeg', 'png'];
 
+
 export {FILE_EXTENSIONS, RANDOM_PHOTOS_COUNT, RENDER_DELAY, UploadStatusMessage, EffectClassName, EffectName, DEFAULT_COMMENT_NUMBER, ServerAddress, MESSAGE_SHOW_TIME, SliderHeatEffect, SliderPhobosEffect,
   SliderMarvinEffect, SliderSepiaEffect, SliderChromeEffect, SliderDefaultEffect, BIG_PICTURE_COMMENT_LIMIT, HASHTAG_MASK, ZoomControlButtonClass,
   ErrorMessage, MAX_HASHTAG_COUNT, ZoomRange, DESCRIPTION_LENGTH_FIELD};
